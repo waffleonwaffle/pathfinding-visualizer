@@ -1,10 +1,9 @@
-import './App.css';
+import PathfindingVisualizer from "./components/PathfindingVisualizer";
+import './styles/global.css'
 
 function App() {
   return (
-    <div className="App">
-      
-    </div>
+    <PathfindingVisualizer></PathfindingVisualizer>
   );
 }
 
