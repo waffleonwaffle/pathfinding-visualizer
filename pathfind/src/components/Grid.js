@@ -50,17 +50,14 @@ const insertNeighbors = (grid) => {
     }
 }
 
-const Grid = () => {
+const Grid = ({chosenAlgorithm}) => {
     const [startCell, setStartCell] = useState([0, 0])
     const [goalCell, setGoalCell] = useState([10, 30])
     const [grid, setGrid] = useState(initializeGrid(startCell, goalCell))
-
-    // useEffect(() => {
-    // }, [])
-
     const updateAlgoPath = (algo) => {
         const cameFrom = algo(startCell, grid)
         if(cameFrom === null){
+            console.log('wrong')
             return
         }
         let current = cameFrom[JSON.stringify(goalCell)]
@@ -85,7 +82,14 @@ const Grid = () => {
     };
 
     const handleStartPath = () => {
-        updateAlgoPath(DijkstraAlgo)
+        let algorithm;
+        if(chosenAlgorithm === "Dijkstra's Algorithm"){
+            algorithm = DijkstraAlgo
+        } else{
+            console.log("PICK AN ALGO FIRST")
+            return
+        }
+        updateAlgoPath(algorithm)
     }
 
     return (
