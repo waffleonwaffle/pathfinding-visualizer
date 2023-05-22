@@ -1,9 +1,12 @@
 import Grid from "./Grid"
 
 const PathfindingVisualizer = () => {
-    
+
     return (
-        <Grid></Grid>
+        <div>
+            <Grid></Grid>
+        </div>
+
     )
 
 }

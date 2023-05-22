@@ -15,9 +15,10 @@ const DijkstraAlgo = (startNode, grid) => {
             return cameFrom
         }
         current.neighbors.forEach(neighbor => {
+            // console.log(neighbor.coords, neighbor.weight)
             const neighboorCoords = serializeArray(neighbor.coords)
-            const newCost = neighbor.weight + costSoFar[neighboorCoords]
-            if (!(neighboorCoords in costSoFar) || newCost < costSoFar[neighboorCoords]) {
+            const newCost = neighbor.weight + costSoFar[serializeArray(current.coords)]
+            if (neighbor.weight !== Infinity && (!(neighboorCoords in costSoFar) || newCost < costSoFar[neighboorCoords])) {
                 pQueue.enqueue(neighbor, newCost)
                 cameFrom[neighboorCoords] = current
                 costSoFar[neighboorCoords] = newCost
@@ -25,6 +26,7 @@ const DijkstraAlgo = (startNode, grid) => {
 
         });
     }
+    return null
 }
 export default DijkstraAlgo
 
