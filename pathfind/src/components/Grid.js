@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import uniqid from 'uniqid'
 import Cell from "./Cell";
 import DijkstraAlgo from "../algorithms/Dijkstra";
@@ -11,11 +11,12 @@ const initializeGrid = (startCell, goalCell) => {
             const cell = {
                 id: uniqid(),
                 coords: [r, c],
-                clicked: false,
+                wall: false,
                 isStart: false,
                 isGoal: false,
                 weight: 1,
                 partOfPath: false,
+                moving: false,
                 neighbors: []
             }
             row.push(cell)
@@ -50,19 +51,39 @@ const insertNeighbors = (grid) => {
     }
 }
 
-const Grid = ({chosenAlgorithm}) => {
-    const [startCell, setStartCell] = useState([0, 0])
+const Grid = ({ selectedAlgorithm }) => {
+    // const [algorithm, setAlgorithm] = useState(null);
+    const [startCell, setStartCell] = useState([10, 25])
     const [goalCell, setGoalCell] = useState([10, 30])
     const [grid, setGrid] = useState(initializeGrid(startCell, goalCell))
-    const updateAlgoPath = (algo) => {
-        const cameFrom = algo(startCell, grid)
-        if(cameFrom === null){
-            console.log('wrong')
+    const [clickedWaypoint, setClickedWaypoint] = useState([false, false]);
+    let throttledMoveWaypoints = null;
+    const handleClick = ([row, col]) => {
+        if (row === goalCell[0] && col === goalCell[1]) {
+            setClickedWaypoint([clickedWaypoint[0], true])
+            return
+        } else if (row === startCell[0] && col === startCell[1]) {
+            setClickedWaypoint([true, clickedWaypoint[1]])
+            return
+        }
+
+        const newGrid = grid.map((row) => [...row]);
+        const cell = newGrid[row][col]
+        cell.wall = !cell.wall;
+        cell.weight = Infinity
+        newGrid[row][col] = cell
+        setGrid(newGrid)
+    };
+
+    const updateAlgoPath = (cameFrom) => {
+        if (cameFrom === null) {
+            console.log('NO PATH')
             return
         }
         let current = cameFrom[JSON.stringify(goalCell)]
+
         const newGrid = grid.map((row) => [...row]);
-        while (current !== null) {
+        while (current) {
             const { coords } = current
             newGrid[coords[0]][coords[1]].partOfPath = true;
             current = cameFrom[JSON.stringify(current.coords)]
@@ -70,42 +91,94 @@ const Grid = ({chosenAlgorithm}) => {
         setGrid(newGrid)
 
     }
-    const handleAddWall = ([row, col]) => {
+
+    const handleMoveWaypoints = (event) => {
+        const cell = event.target;
+        if (!cell.parentNode) {
+            return
+        }
+        const row = cell.parentNode.rowIndex;
+        const col = cell.cellIndex;
         const newGrid = grid.map((row) => [...row]);
-        const cell = newGrid[row][col]
-        cell.clicked = !cell.clicked;
-        cell.weight = Infinity
-        newGrid[row][col] = cell
-        setGrid(newGrid)
-        // console.log(grid)
+        if ((row === undefined || col === undefined) || (grid[row][col].wall)) {
+            return
+        }
+        if (clickedWaypoint[0]) {
+            const [oldStartRow, oldStartCol] = startCell;
+            if (row === oldStartRow && col === oldStartCol) {
+                return;
+            }
+            newGrid[oldStartRow][oldStartCol].isStart = false;
+            newGrid[row][col].isStart = true;
+            newGrid[row][col].moving = true;
+            setStartCell([row, col]);
+            setGrid(newGrid);
+
+        } else if (clickedWaypoint[1]) {
+            const [oldGoalRow, oldGoalCol] = goalCell;
+            if (row === oldGoalRow && col === oldGoalCol) {
+                return;
+            }
+            newGrid[oldGoalRow][oldGoalCol].isGoal = false;
+            newGrid[row][col].isGoal = true;
+            setGoalCell([row, col]);
+            setGrid(newGrid);
+        }
 
     };
 
-    const handleStartPath = () => {
-        let algorithm;
-        if(chosenAlgorithm === "Dijkstra's Algorithm"){
-            algorithm = DijkstraAlgo
-        } else{
-            console.log("PICK AN ALGO FIRST")
-            return
+    const handleMoveWaypointsThrottled = (event) => {
+        if (throttledMoveWaypoints) {
+            return;
         }
-        updateAlgoPath(algorithm)
+
+        throttledMoveWaypoints = setTimeout(() => {
+            handleMoveWaypoints(event);
+            throttledMoveWaypoints = null;
+        }, 0);
+    };
+    
+    const setWayPoint = () => {
+        if (clickedWaypoint[0] || clickedWaypoint[1]) {
+            setClickedWaypoint([false, false])
+
+        }
     }
+    const handleStartPath = () => {
+        let cameFrom;
+        if (selectedAlgorithm === "Dijkstra's Algorithm") {
+            cameFrom = DijkstraAlgo(startCell, grid);
+        } else {
+            return;
+        }
+        updateAlgoPath(cameFrom);
+    };
 
     return (
         <div>
             <button onClick={handleStartPath}></button>
-            <table className='grid'>
+            <table
+                className="grid"
+                onMouseMove={handleMoveWaypointsThrottled}
+                onMouseDown={setWayPoint}
+            >
                 <tbody>
-                    {grid.map((row, rowIndex) => <tr key={rowIndex}>
-                        {row.map(cell => <Cell key={uniqid()} cell={cell} handleClick={handleAddWall}></Cell>)}</tr>)}
+                    {grid.map((row, rowIndex) => (
+                        <tr key={rowIndex}>
+                            {row.map((cell) => (
+                                <Cell
+                                    key={uniqid()}
+                                    cell={cell}
+                                    handleClick={handleClick}
+                                ></Cell>
+                            ))}
+                        </tr>
+                    ))}
                 </tbody>
-
             </table>
         </div>
+    );
 
-
-    )
 
 }
 

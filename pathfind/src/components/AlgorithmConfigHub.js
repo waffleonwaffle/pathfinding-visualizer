@@ -1,9 +1,9 @@
 import { Menu, Button } from '@mantine/core';
-let selectedAlgorithm = ""
 
-const AlgorithmConfigHub = () => {
+const AlgorithmConfigHub = ({onAlgorithmChange}) => {
     const handleItemClick = (event) => {
-        selectedAlgorithm = event.target.innerText;
+        const selectedAlgorithm = event.target.innerText;
+        onAlgorithmChange(selectedAlgorithm)
     }
     return (
         <Menu shadow="lg" width={200}>
@@ -12,10 +12,12 @@ const AlgorithmConfigHub = () => {
             </Menu.Target>
 
             <Menu.Dropdown>
+                <Menu.Item onClick={handleItemClick}>Depth-first Search</Menu.Item>
+                <Menu.Item onClick={handleItemClick}>Breadth-first Search</Menu.Item>
                 <Menu.Item onClick={handleItemClick}>Dijkstra's Algorithm</Menu.Item>
+                <Menu.Item onClick={handleItemClick}>A* Search</Menu.Item>
             </Menu.Dropdown>
         </Menu>
     )
 }
-export {selectedAlgorithm}
 export default AlgorithmConfigHub

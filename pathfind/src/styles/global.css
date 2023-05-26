@@ -1,18 +1,36 @@
 table {
     border-collapse: collapse;
 }
+
 .grid-cell {
-    border: 2px solid black;
+    border: 1px solid black;
     width: 1rem;
     height: 1rem;
 }
 
-.clicked-cell {
+.wall-cell {
     background-color: navy;
 }
+
 .path-cell {
     background-color: lightblue;
 }
+
 .start-cell {
     background-color: aqua;
 }
+
+/* .draggable {
+    position: absolute;
+    background-color: yellow;
+    border: 1px solid black;
+    z-index: 100;
+} */
+
+/* .moving-cell {
+    background-color: red;
+  }
+  
+  .moving-cell.moving {
+    background-color: red;
+  } */
