@@ -2,7 +2,7 @@ table {
     border-collapse: collapse;
 }
 
-.grid-cell {
+td {
     border: 1px solid black;
     width: 1rem;
     height: 1rem;
@@ -19,18 +19,3 @@ table {
 .start-cell {
     background-color: aqua;
 }
-
-/* .draggable {
-    position: absolute;
-    background-color: yellow;
-    border: 1px solid black;
-    z-index: 100;
-} */
-
-/* .moving-cell {
-    background-color: red;
-  }
-  
-  .moving-cell.moving {
-    background-color: red;
-  } */

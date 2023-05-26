@@ -1,63 +1,20 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import uniqid from 'uniqid'
 import Cell from "./Cell";
 import DijkstraAlgo from "../algorithms/Dijkstra";
-const initializeGrid = (startCell, goalCell) => {
-    const initialGrid = []
-    for (let r = 0; r < 20; r++) {
-        const row = []
-        for (let c = 0; c < 50; c++) {
-            const cell = {
-                id: uniqid(),
-                coords: [r, c],
-                wall: false,
-                isStart: false,
-                isGoal: false,
-                weight: 1,
-                partOfPath: false,
-                moving: false,
-                neighbors: []
-            }
-            row.push(cell)
-        }
-        initialGrid.push(row)
-    }
-
-    const [startRow, startCol] = startCell
-    initialGrid[startRow][startCol].isStart = true
-
-    const [goalRow, goalCol] = goalCell
-    initialGrid[goalRow][goalCol].isGoal = true
-
-    insertNeighbors(initialGrid);
-    return initialGrid
-}
-const insertNeighbors = (grid) => {
-    const directions = [[1, 0], [0, 1], [0, -1], [-1, 0]];
-    for (let r = 0; r < grid.length; r++) {
-        for (let c = 0; c < grid[0].length; c++) {
-            const cell = grid[r][c]
-            for (const [dr, dc] of directions) {
-                const row = r + dr
-                const col = c + dc
-                if (row >= grid.length || row < 0 || col >= grid[0].length || col < 0) {
-                    continue
-                }
-                cell.neighbors.push(grid[row][col])
-            }
-
-        }
-    }
-}
-
+import { initializeGrid, updateNeighbors } from "./helpers/setupGrid";
 const Grid = ({ selectedAlgorithm }) => {
-    // const [algorithm, setAlgorithm] = useState(null);
-    const [startCell, setStartCell] = useState([10, 25])
-    const [goalCell, setGoalCell] = useState([10, 30])
+    const [startCell, setStartCell] = useState([0, 0])
+    const [goalCell, setGoalCell] = useState([0, 20])
     const [grid, setGrid] = useState(initializeGrid(startCell, goalCell))
     const [clickedWaypoint, setClickedWaypoint] = useState([false, false]);
     let throttledMoveWaypoints = null;
+    useEffect(() => {
+        if (selectedAlgorithm === "Dijkstra's Algorithm") {
+            updateAlgoPath(DijkstraAlgo)
+        }
+    }, [selectedAlgorithm, startCell, goalCell])
     const handleClick = ([row, col]) => {
         if (row === goalCell[0] && col === goalCell[1]) {
             setClickedWaypoint([clickedWaypoint[0], true])
@@ -70,19 +27,21 @@ const Grid = ({ selectedAlgorithm }) => {
         const newGrid = grid.map((row) => [...row]);
         const cell = newGrid[row][col]
         cell.wall = !cell.wall;
-        cell.weight = Infinity
+        cell.weight = cell.weight === 1 ? Infinity : 1
         newGrid[row][col] = cell
+        updateNeighbors(newGrid)
         setGrid(newGrid)
     };
 
-    const updateAlgoPath = (cameFrom) => {
+    const updateAlgoPath = (algo) => {
+        const cameFrom = algo(startCell, grid)
         if (cameFrom === null) {
             console.log('NO PATH')
             return
         }
         let current = cameFrom[JSON.stringify(goalCell)]
 
-        const newGrid = grid.map((row) => [...row]);
+        const newGrid = grid.map((row) => row.map((cell) => { return { ...cell, partOfPath: false } }));
         while (current) {
             const { coords } = current
             newGrid[coords[0]][coords[1]].partOfPath = true;
@@ -110,53 +69,53 @@ const Grid = ({ selectedAlgorithm }) => {
             }
             newGrid[oldStartRow][oldStartCol].isStart = false;
             newGrid[row][col].isStart = true;
-            newGrid[row][col].moving = true;
             setStartCell([row, col]);
+            updateNeighbors(newGrid)
             setGrid(newGrid);
-
         } else if (clickedWaypoint[1]) {
             const [oldGoalRow, oldGoalCol] = goalCell;
             if (row === oldGoalRow && col === oldGoalCol) {
                 return;
             }
             newGrid[oldGoalRow][oldGoalCol].isGoal = false;
+
             newGrid[row][col].isGoal = true;
             setGoalCell([row, col]);
+            updateNeighbors(newGrid)
             setGrid(newGrid);
         }
 
     };
 
+
     const handleMoveWaypointsThrottled = (event) => {
         if (throttledMoveWaypoints) {
             return;
         }
-
         throttledMoveWaypoints = setTimeout(() => {
             handleMoveWaypoints(event);
             throttledMoveWaypoints = null;
         }, 0);
     };
-    
+
     const setWayPoint = () => {
         if (clickedWaypoint[0] || clickedWaypoint[1]) {
             setClickedWaypoint([false, false])
-
         }
     }
-    const handleStartPath = () => {
-        let cameFrom;
-        if (selectedAlgorithm === "Dijkstra's Algorithm") {
-            cameFrom = DijkstraAlgo(startCell, grid);
-        } else {
-            return;
-        }
-        updateAlgoPath(cameFrom);
-    };
+    // const handleStartPath = () => {
+    //     let algo;
+    //     if (selectedAlgorithm === "Dijkstra's Algorithm") {
+    //         algo = DijkstraAlgo;
+    //     } else {
+    //         return;
+    //     }
+    //     updateAlgoPath(algo);
+    // };
 
     return (
         <div>
-            <button onClick={handleStartPath}></button>
+            {/* <button onClick={handleStartPath}></button> */}
             <table
                 className="grid"
                 onMouseMove={handleMoveWaypointsThrottled}

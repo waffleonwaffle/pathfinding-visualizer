@@ -3,9 +3,7 @@ const serializeArray = (arr) => {
     return JSON.stringify(arr);
 }
 const DijkstraAlgo = (startNode, grid) => {
-    // console.log('RUN ALGO')
     let pQueue = new PriorityQueue()
-    // console.log('dji', grid)
     let cameFrom = {[serializeArray(startNode)]: null }
     let costSoFar = {[serializeArray(startNode)]: 0 }
     const [row, col] = startNode
@@ -16,6 +14,7 @@ const DijkstraAlgo = (startNode, grid) => {
         if (current.isGoal) {
             return cameFrom
         }
+
         current.neighbors.forEach(neighbor => {
             const neighboorCoords = serializeArray(neighbor.coords)
             const newCost = neighbor.weight + costSoFar[serializeArray(current.coords)]

@@ -7,8 +7,6 @@ const Cell = ({ cell, handleMoveWaypoints, handleClick }) => {
             className += "wall-cell"
         } else if (cell.partOfPath) {
             className += "path-cell"
-        } else {
-            className += "grid-cell"
         }
         return className
     }
