@@ -1,4 +1,4 @@
-import PriorityQueue from "./PriorityQueue"
+import PriorityQueue from "../components/helpers/PriorityQueue"
 const serializeArray = (arr) => {
     return JSON.stringify(arr);
 }
@@ -14,7 +14,6 @@ const DijkstraAlgo = (startNode, grid) => {
         if (current.isGoal) {
             return cameFrom
         }
-
         current.neighbors.forEach(neighbor => {
             const neighboorCoords = serializeArray(neighbor.coords)
             const newCost = neighbor.weight + costSoFar[serializeArray(current.coords)]

@@ -1,4 +1,4 @@
-const Cell = ({ cell, handleMoveWaypoints, handleClick }) => {
+const Cell = ({ cell }) => {
     const cellType = (cell) => {
         let className = ""
         if (cell.isStart || cell.isGoal) {
@@ -13,10 +13,7 @@ const Cell = ({ cell, handleMoveWaypoints, handleClick }) => {
 
 
     return (
-        <td className={cellType(cell)}
-            onMouseMove={(cell.isStart || cell.isGoal) ? handleMoveWaypoints : null}
-            onClick={() => handleClick(cell.coords)}>
-        </td>
+        <td className={cellType(cell)}></td>
     )
 }
 

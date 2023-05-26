@@ -48,3 +48,17 @@ export const updateNeighbors = (grid) => {
     }
 }
 
+export const getRowColFromTable = (event) => {
+    const cell = event.target;
+    if (!cell || !cell.parentNode) {
+        return
+    }
+    const row = cell.parentNode.rowIndex;
+    const col = cell.cellIndex;
+    if (row === undefined || col === undefined) {
+        return
+    }
+
+    return [row, col]
+}
+
