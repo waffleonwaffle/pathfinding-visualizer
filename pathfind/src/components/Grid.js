@@ -8,8 +8,8 @@ import { initializeGrid, updateNeighbors } from "./helpers/gridHelperFunctions";
 
 
 const Grid = ({ selectedAlgorithm }) => {
-    const START_CELL_COORDS = [10, 15];
-    const GOAL_CELL_COORDS = [10, 35];
+    const START_CELL_COORDS = [0, 0];
+    const GOAL_CELL_COORDS = [0, 5];
     const [startCell, setStartCell] = useState(START_CELL_COORDS)
     const [goalCell, setGoalCell] = useState(GOAL_CELL_COORDS)
     const [grid, setGrid] = useState(initializeGrid(startCell, goalCell))
@@ -39,25 +39,23 @@ const Grid = ({ selectedAlgorithm }) => {
 
     const animateSearchingCells = (algo) => {
         setPathRunning(true);
-        const [found, cameFrom] = algo(startCell, grid);
-        const keys = Object.keys(cameFrom);
+        const [found, cameFrom, searchedCells] = algo(startCell, grid);
         let currentIndex = 1;
         const newGrid = grid.map((row) => row.map((cell) => { return { ...cell, searched: false, partOfPath: false } }))
-        const intervalId = setInterval(() => {
-            if (currentIndex >= keys.length) {
+        const searchingCellsInterval = setInterval(() => {
+            if (currentIndex >= searchedCells.length) {
                 if (found) {
                     updateVisualization(cameFrom)
                 }
-                clearInterval(intervalId);
+                clearInterval(searchingCellsInterval);
                 setPathRunning(false);
                 setGrid(newGrid);
                 return;
             }
-            const searchedCell = JSON.parse(keys[currentIndex]);
-            if (searchedCell) {
-                newGrid[searchedCell[0]][searchedCell[1]].searched = true;
-                setGrid([...newGrid]);
-            }
+            const searchedCell = searchedCells[currentIndex]
+            newGrid[searchedCell[0]][searchedCell[1]].searched = true;
+            setGrid([...newGrid]);
+            
 
             currentIndex++;
         }, 10);
@@ -66,29 +64,44 @@ const Grid = ({ selectedAlgorithm }) => {
 
     const updateVisualization = (cameFrom) => {
         setGrid((prevGrid) => {
-            const newGrid = [...prevGrid]
+            const newGrid = prevGrid.map((row) =>
+                row.map((cell) => ({ ...cell, partOfPath: false }))
+            );
             let current = cameFrom[JSON.stringify(goalCell)];
+            const path = []
             while (current) {
                 const { coords } = current;
-                newGrid[coords[0]][coords[1]].partOfPath = true;
+                path.push(coords)
                 current = cameFrom[JSON.stringify(current.coords)];
             }
+            path.reverse()
+            let index = 0
+            const pathVisualizationInterval = setInterval(() => {
+                if (index >= path.length) {
+                    clearInterval(pathVisualizationInterval)
+                    return
+                }
+                const cell = path[index]
+                newGrid[cell[0]][cell[1]].partOfPath = true;
+                setGrid([...newGrid]);
+                index++
+            }, 30)
 
             return newGrid
         });
+
     };
 
     const updateGrid = (algo) => {
-        const [found, cameFrom] = algo(startCell, grid);
+        const [found, cameFrom, searchedCells] = algo(startCell, grid);
         const newGrid = grid.map((row) => row.map((cell) => ({ ...cell, searched: false, partOfPath: false })));
         if (!found) {
             setGrid(newGrid)
             return
         }
-        for (const cell in cameFrom) {
-            const [row, col] = JSON.parse(cell);
-            newGrid[row][col].searched = true;
-
+        for(let i = 0; i < searchedCells.length; i++){
+            const [row, col] = searchedCells[i]
+            newGrid[row][col].searched = true
         }
         let current = cameFrom[JSON.stringify(goalCell)];
         while (current) {

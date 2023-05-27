@@ -40,7 +40,7 @@ export const initializeGrid = (startCell, goalCell) => {
     return initialGrid
 }
 export const updateNeighbors = (grid) => {
-    const directions = [RIGHT, UP, LEFT, DOWN];
+    const directions = [RIGHT, DOWN, LEFT, UP];
     // const diagonalDirections = [RIGHT, UP, LEFT, DOWN, DOWN_RIGHT, UP_RIGHT, DOWN_LEFT, UP_LEFT];
 
     for (let r = 0; r < grid.length; r++) {
