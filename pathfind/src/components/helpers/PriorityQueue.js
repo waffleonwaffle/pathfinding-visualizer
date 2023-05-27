@@ -4,8 +4,8 @@ class PriorityQueue {
     }
 
     enqueue(element, priority) {
-
         const item = { element, priority };
+
         let inserted = false;
 
         for (let i = 0; i < this.queue.length; i++) {
@@ -24,7 +24,8 @@ class PriorityQueue {
         if (this.isEmpty()) {
             return null;
         }
-        return this.queue.shift().element;
+        const elm = this.queue.shift().element;
+        return elm
     }
 
     front() {

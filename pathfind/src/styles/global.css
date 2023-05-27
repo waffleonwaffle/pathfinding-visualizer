@@ -9,11 +9,30 @@ td {
 }
 
 .wall-cell {
+    /* animation-name: example;
+    animation-duration: 0.5s; */
     background-color: navy;
+}
+
+@keyframes example {
+    from {
+        background-color: white;
+    }
+
+    to {
+        background-color: navy;
+    }
 }
 
 .path-cell {
     background-color: lightblue;
+}
+
+.searched-cell {
+   
+
+
+    background-color: lightgreen;
 }
 
 .start-cell {

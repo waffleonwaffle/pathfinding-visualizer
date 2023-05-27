@@ -8,20 +8,21 @@ import { initializeGrid, updateNeighbors } from "./helpers/gridHelperFunctions";
 
 
 const Grid = ({ selectedAlgorithm }) => {
-    const START_CELL_COORDS = [10, 0];
-    const GOAL_CELL_COORDS = [0, 20];
+    const START_CELL_COORDS = [10, 15];
+    const GOAL_CELL_COORDS = [10, 35];
     const [startCell, setStartCell] = useState(START_CELL_COORDS)
     const [goalCell, setGoalCell] = useState(GOAL_CELL_COORDS)
     const [grid, setGrid] = useState(initializeGrid(startCell, goalCell))
     const [clickedWaypoint, setClickedWaypoint] = useState([false, false]);
     const [placingWalls, setPlacingWalls] = useState(false);
     const [previousCoordinates, setPreviousCoordinates] = useState([null, null]);
+    const [pathRunning, setPathRunning] = useState(false);
     let throttledMoveWaypoints = null;
     useEffect(() => {
         if (selectedAlgorithm === "Dijkstra's Algorithm") {
-            updateAlgoPath(DijkstraAlgo)
+            updateGrid(DijkstraAlgo)
         }
-    }, [selectedAlgorithm, startCell, goalCell])
+    }, [startCell, goalCell])
 
     const changeCellToWall = (row, col) => {
         setGrid(prevGrid => {
@@ -36,27 +37,72 @@ const Grid = ({ selectedAlgorithm }) => {
         setPreviousCoordinates([row, col]);
     }
 
-    const updateAlgoPath = (algo) => {
-        const cameFrom = algo(startCell, grid)
-        const newGrid = grid.map((row) => row.map((cell) => { return { ...cell, partOfPath: false } }));
-        if (cameFrom === null) {
+    const animateSearchingCells = (algo) => {
+        setPathRunning(true);
+        const [found, cameFrom] = algo(startCell, grid);
+        const keys = Object.keys(cameFrom);
+        let currentIndex = 1;
+        const newGrid = grid.map((row) => row.map((cell) => { return { ...cell, searched: false, partOfPath: false } }))
+        const intervalId = setInterval(() => {
+            if (currentIndex >= keys.length) {
+                if (found) {
+                    updateVisualization(cameFrom)
+                }
+                clearInterval(intervalId);
+                setPathRunning(false);
+                setGrid(newGrid);
+                return;
+            }
+            const searchedCell = JSON.parse(keys[currentIndex]);
+            if (searchedCell) {
+                newGrid[searchedCell[0]][searchedCell[1]].searched = true;
+                setGrid([...newGrid]);
+            }
+
+            currentIndex++;
+        }, 10);
+    };
+
+
+    const updateVisualization = (cameFrom) => {
+        setGrid((prevGrid) => {
+            const newGrid = [...prevGrid]
+            let current = cameFrom[JSON.stringify(goalCell)];
+            while (current) {
+                const { coords } = current;
+                newGrid[coords[0]][coords[1]].partOfPath = true;
+                current = cameFrom[JSON.stringify(current.coords)];
+            }
+
+            return newGrid
+        });
+    };
+
+    const updateGrid = (algo) => {
+        const [found, cameFrom] = algo(startCell, grid);
+        const newGrid = grid.map((row) => row.map((cell) => ({ ...cell, searched: false, partOfPath: false })));
+        if (!found) {
             setGrid(newGrid)
             return
         }
-        let current = cameFrom[JSON.stringify(goalCell)]
+        for (const cell in cameFrom) {
+            const [row, col] = JSON.parse(cell);
+            newGrid[row][col].searched = true;
 
-        while (current) {
-            const { coords } = current
-            newGrid[coords[0]][coords[1]].partOfPath = true;
-            current = cameFrom[JSON.stringify(current.coords)]
         }
-        setGrid(newGrid)
+        let current = cameFrom[JSON.stringify(goalCell)];
+        while (current) {
+            const { coords } = current;
+            newGrid[coords[0]][coords[1]].partOfPath = true;
+            current = cameFrom[JSON.stringify(current.coords)];
+        }
 
-    }
+        setGrid(newGrid);
+    };
 
     const handleClickCell = (event) => {
         const coords = getRowColFromTable(event)
-        if (!coords) {
+        if (!coords || pathRunning) {
             return
         }
         if (clickedWaypoint[0] || clickedWaypoint[1]) {
@@ -70,15 +116,13 @@ const Grid = ({ selectedAlgorithm }) => {
             return
         }
         changeCellToWall(coords[0], coords[1])
-
-
     };
 
 
     const handleMoveCells = (event) => {
 
         const coords = getRowColFromTable(event)
-        if (!coords) {
+        if (!coords || pathRunning) {
             return
         }
         const [row, col] = coords
@@ -122,36 +166,39 @@ const Grid = ({ selectedAlgorithm }) => {
             throttledMoveWaypoints = null;
         }, 10);
     }
-    
+
     const handleMoveWalls = (event) => {
         const coords = getRowColFromTable(event)
-        if (!coords) {
+        if (!coords || pathRunning) {
             return
         }
-
-        // if (clickedWaypoint[0] || clickedWaypoint[1]) {
-        //     return
-        // }
-        // else 
         if ((coords[0] === goalCell[0] && coords[1] === goalCell[1]) || (coords[0] === startCell[0] && coords[1] === startCell[1])) {
             return
         }
-
         setPlacingWalls(true)
         handleClickCell(event)
-
     }
 
+    const handleClick = () => {
+        if (pathRunning) {
+            return
+        }
+        if (selectedAlgorithm === "Dijkstra's Algorithm") {
+            animateSearchingCells(DijkstraAlgo)
+        } else if (selectedAlgorithm === "A*") {
+            // animateSearchingCells(AStar)
+        }
+    }
 
     return (
         <div>
+            <button onClick={handleClick}>Visualize Algorithm</button>
             <table
                 className="grid"
                 onClick={handleClickCell}
                 onMouseMove={handleMoveCellsThrottled}
                 onMouseDown={handleMoveWalls}
-                onMouseUp={() => setPlacingWalls(false)}
-            >
+                onMouseUp={() => setPlacingWalls(false)}>
                 <tbody>
                     {grid.map((row, rowIndex) => (
                         <tr key={rowIndex}>
