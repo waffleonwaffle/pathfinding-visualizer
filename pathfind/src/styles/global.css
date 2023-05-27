@@ -8,11 +8,14 @@ td {
     height: 1rem;
 }
 
-.wall-cell {
-    
+.wall-cell{
+    transition: background-color 1s;
     background-color: #343A40;
 }
 
+.animation {
+    transition: background-color 1s;
+}
 
 .path-cell {
     background-color: #007BFF;

@@ -3,13 +3,15 @@ import { useEffect, useState } from "react";
 import uniqid from 'uniqid'
 import Cell from "./Cell";
 import DijkstraAlgo from "../algorithms/Dijkstra";
+import AStarAlgo from "../algorithms/AStar";
+import GreedyBestFirstAlgo from "../algorithms/GreedyBestFirstSearch";
 import { getRowColFromTable } from "./helpers/gridHelperFunctions";
 import { initializeGrid, updateNeighbors } from "./helpers/gridHelperFunctions";
 
 
 const Grid = ({ selectedAlgorithm }) => {
-    const START_CELL_COORDS = [0, 0];
-    const GOAL_CELL_COORDS = [0, 5];
+    const START_CELL_COORDS = [10, 15];
+    const GOAL_CELL_COORDS = [10, 35];
     const [startCell, setStartCell] = useState(START_CELL_COORDS)
     const [goalCell, setGoalCell] = useState(GOAL_CELL_COORDS)
     const [grid, setGrid] = useState(initializeGrid(startCell, goalCell))
@@ -21,6 +23,10 @@ const Grid = ({ selectedAlgorithm }) => {
     useEffect(() => {
         if (selectedAlgorithm === "Dijkstra's Algorithm") {
             updateGrid(DijkstraAlgo)
+        } else if (selectedAlgorithm === "A* Search") {
+            updateGrid(AStarAlgo)
+        } else if (selectedAlgorithm === "Greedy best-first Search") {
+            updateGrid(GreedyBestFirstAlgo)
         }
     }, [startCell, goalCell])
 
@@ -39,7 +45,7 @@ const Grid = ({ selectedAlgorithm }) => {
 
     const animateSearchingCells = (algo) => {
         setPathRunning(true);
-        const [found, cameFrom, searchedCells] = algo(startCell, grid);
+        const [found, cameFrom, searchedCells] = algo(startCell, goalCell, grid);
         let currentIndex = 1;
         const newGrid = grid.map((row) => row.map((cell) => { return { ...cell, searched: false, partOfPath: false } }))
         const searchingCellsInterval = setInterval(() => {
@@ -93,7 +99,7 @@ const Grid = ({ selectedAlgorithm }) => {
     };
 
     const updateGrid = (algo) => {
-        const [found, cameFrom, searchedCells] = algo(startCell, grid);
+        const [found, cameFrom, searchedCells] = algo(startCell, goalCell, grid);
         const newGrid = grid.map((row) => row.map((cell) => ({ ...cell, searched: false, partOfPath: false })));
         if (!found) {
             setGrid(newGrid)
@@ -128,7 +134,10 @@ const Grid = ({ selectedAlgorithm }) => {
             setClickedWaypoint([true, clickedWaypoint[1]])
             return
         }
+
+        
         changeCellToWall(coords[0], coords[1])
+
     };
 
 
@@ -198,8 +207,10 @@ const Grid = ({ selectedAlgorithm }) => {
         }
         if (selectedAlgorithm === "Dijkstra's Algorithm") {
             animateSearchingCells(DijkstraAlgo)
-        } else if (selectedAlgorithm === "A*") {
-            // animateSearchingCells(AStar)
+        } else if (selectedAlgorithm === "A* Search") {
+            animateSearchingCells(AStarAlgo)
+        } else if (selectedAlgorithm === "Greedy best-first Search") {
+            animateSearchingCells(GreedyBestFirstAlgo)
         }
     }
 

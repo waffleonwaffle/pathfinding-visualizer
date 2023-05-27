@@ -16,6 +16,8 @@ const AlgorithmConfigHub = ({onAlgorithmChange}) => {
                 <Menu.Item onClick={handleItemClick}>Breadth-first Search</Menu.Item>
                 <Menu.Item onClick={handleItemClick}>Dijkstra's Algorithm</Menu.Item>
                 <Menu.Item onClick={handleItemClick}>A* Search</Menu.Item>
+                <Menu.Item onClick={handleItemClick}>Greedy best-first Search</Menu.Item>
+
             </Menu.Dropdown>
         </Menu>
     )

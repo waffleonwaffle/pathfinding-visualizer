@@ -2,7 +2,7 @@ import PriorityQueue from "../components/helpers/PriorityQueue"
 const serializeArray = (arr) => {
     return JSON.stringify(arr);
 }
-const DijkstraAlgo = (startNode, grid) => {
+const DijkstraAlgo = (startNode, goalNode, grid) => {
     let pQueue = new PriorityQueue()
     let cameFrom = {[serializeArray(startNode)]: null }
     let costSoFar = {[serializeArray(startNode)]: 0 }
@@ -23,9 +23,7 @@ const DijkstraAlgo = (startNode, grid) => {
                 costSoFar[neighboorCoords] = newCost
                 pQueue.enqueue(neighbor, newCost)
                 cameFrom[neighboorCoords] = current
-
             }
-
         });
     }
     return [false, cameFrom, searchedCells]
