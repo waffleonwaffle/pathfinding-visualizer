@@ -1,7 +1,10 @@
-const Cell = ({ cell }) => {
+const Cell = ({ cell, handleClick }) => {
     const cellType = (cell) => {
         let className = ""
-        if (cell.isStart || cell.isGoal) {
+        if(cell.clicked) {
+            className = "animate-cell"
+        } 
+        else if (cell.isStart || cell.isGoal) {
             className = "start-cell"
         } else if (cell.wall) {
             className = "wall-cell"
@@ -9,13 +12,15 @@ const Cell = ({ cell }) => {
             className = "path-cell"
         } else if (cell.searched) {
             className = "searched-cell"
-        }
+        } 
         return className
     }
 
 
     return (
-        <td className={cellType(cell)}></td>
+        <td
+            className={cellType(cell)}
+        ></td>
     )
 }
 

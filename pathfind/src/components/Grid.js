@@ -4,10 +4,11 @@ import uniqid from 'uniqid'
 import Cell from "./Cell";
 import DijkstraAlgo from "../algorithms/Dijkstra";
 import AStarAlgo from "../algorithms/AStar";
-import GreedyBestFirstAlgo from "../algorithms/GreedyBestFirstSearch";
-import { getRowColFromTable } from "./helpers/gridHelperFunctions";
-import { initializeGrid, updateNeighbors } from "./helpers/gridHelperFunctions";
+import DFSAlgo from "../algorithms/DepthFirstSearch";
+import { Button } from '@mantine/core';
 
+import GreedyBestFirstAlgo from "../algorithms/GreedyBestFirstSearch";
+import { reconstructPath, getRowColFromTable, initializeGrid, updateNeighbors } from "./helpers/gridHelperFunctions";
 
 const Grid = ({ selectedAlgorithm }) => {
     const START_CELL_COORDS = [10, 15];
@@ -27,6 +28,8 @@ const Grid = ({ selectedAlgorithm }) => {
             updateGrid(AStarAlgo)
         } else if (selectedAlgorithm === "Greedy best-first Search") {
             updateGrid(GreedyBestFirstAlgo)
+        } else if (selectedAlgorithm === "Depth-first Search") {
+            updateGrid(DFSAlgo)
         }
     }, [startCell, goalCell])
 
@@ -34,6 +37,11 @@ const Grid = ({ selectedAlgorithm }) => {
         setGrid(prevGrid => {
             const newGrid = [...prevGrid];
             const clickedCell = { ...newGrid[row][col] };
+            clickedCell.clicked = true;
+            setTimeout(() => {
+                clickedCell.clicked = false;
+                setGrid([...newGrid]);
+            }, 50);
             clickedCell.wall = !clickedCell.wall;
             clickedCell.weight = clickedCell.weight === 1 ? Infinity : 1;
             newGrid[row][col] = clickedCell;
@@ -45,77 +53,65 @@ const Grid = ({ selectedAlgorithm }) => {
 
     const animateSearchingCells = (algo) => {
         setPathRunning(true);
-        const [found, cameFrom, searchedCells] = algo(startCell, goalCell, grid);
+        const [cameFrom, searchedCells] = algo(startCell, goalCell, grid);
         let currentIndex = 1;
         const newGrid = grid.map((row) => row.map((cell) => { return { ...cell, searched: false, partOfPath: false } }))
         const searchingCellsInterval = setInterval(() => {
             if (currentIndex >= searchedCells.length) {
-                if (found) {
-                    updateVisualization(cameFrom)
-                }
+                updateVisualization(cameFrom)
                 clearInterval(searchingCellsInterval);
-                setPathRunning(false);
                 setGrid(newGrid);
                 return;
             }
             const searchedCell = searchedCells[currentIndex]
             newGrid[searchedCell[0]][searchedCell[1]].searched = true;
             setGrid([...newGrid]);
-            
-
             currentIndex++;
         }, 10);
     };
 
-
     const updateVisualization = (cameFrom) => {
+        const path = reconstructPath(goalCell, cameFrom)
+        if (!path) {
+            setPathRunning(false);
+            return
+        }
         setGrid((prevGrid) => {
             const newGrid = prevGrid.map((row) =>
                 row.map((cell) => ({ ...cell, partOfPath: false }))
             );
-            let current = cameFrom[JSON.stringify(goalCell)];
-            const path = []
-            while (current) {
-                const { coords } = current;
-                path.push(coords)
-                current = cameFrom[JSON.stringify(current.coords)];
-            }
-            path.reverse()
             let index = 0
             const pathVisualizationInterval = setInterval(() => {
                 if (index >= path.length) {
                     clearInterval(pathVisualizationInterval)
+                    setPathRunning(false);
                     return
                 }
-                const cell = path[index]
-                newGrid[cell[0]][cell[1]].partOfPath = true;
+                const coords = path[index]
+                newGrid[coords[0]][coords[1]].partOfPath = true;
                 setGrid([...newGrid]);
                 index++
-            }, 30)
-
+            }, 20)
             return newGrid
         });
 
     };
-
     const updateGrid = (algo) => {
-        const [found, cameFrom, searchedCells] = algo(startCell, goalCell, grid);
+        const [cameFrom, searchedCells] = algo(startCell, goalCell, grid);
         const newGrid = grid.map((row) => row.map((cell) => ({ ...cell, searched: false, partOfPath: false })));
-        if (!found) {
+        const path = reconstructPath(goalCell, cameFrom)
+        if (!path) {
             setGrid(newGrid)
             return
         }
-        for(let i = 0; i < searchedCells.length; i++){
-            const [row, col] = searchedCells[i]
-            newGrid[row][col].searched = true
+        for (let i = 0; i < searchedCells.length; i++) {
+            const searchedCoords = searchedCells[i]
+            newGrid[searchedCoords[0]][searchedCoords[1]].searched = true
+            const pathCoords = path[i]
+            if (pathCoords) {
+                newGrid[pathCoords[0]][pathCoords[1]].partOfPath = true
+            }
         }
-        let current = cameFrom[JSON.stringify(goalCell)];
-        while (current) {
-            const { coords } = current;
-            newGrid[coords[0]][coords[1]].partOfPath = true;
-            current = cameFrom[JSON.stringify(current.coords)];
-        }
-
         setGrid(newGrid);
     };
 
@@ -134,15 +130,12 @@ const Grid = ({ selectedAlgorithm }) => {
             setClickedWaypoint([true, clickedWaypoint[1]])
             return
         }
-
-        
         changeCellToWall(coords[0], coords[1])
 
     };
 
 
     const handleMoveCells = (event) => {
-
         const coords = getRowColFromTable(event)
         if (!coords || pathRunning) {
             return
@@ -201,7 +194,7 @@ const Grid = ({ selectedAlgorithm }) => {
         handleClickCell(event)
     }
 
-    const handleClick = () => {
+    const handleStartVisualization = () => {
         if (pathRunning) {
             return
         }
@@ -211,32 +204,41 @@ const Grid = ({ selectedAlgorithm }) => {
             animateSearchingCells(AStarAlgo)
         } else if (selectedAlgorithm === "Greedy best-first Search") {
             animateSearchingCells(GreedyBestFirstAlgo)
+        } else if (selectedAlgorithm === "Depth-first Search") {
+            animateSearchingCells(DFSAlgo)
         }
     }
 
     return (
         <div>
-            <button onClick={handleClick}>Visualize Algorithm</button>
-            <table
-                className="grid"
-                onClick={handleClickCell}
-                onMouseMove={handleMoveCellsThrottled}
-                onMouseDown={handleMoveWalls}
-                onMouseUp={() => setPlacingWalls(false)}>
-                <tbody>
-                    {grid.map((row, rowIndex) => (
-                        <tr key={rowIndex}>
-                            {row.map((cell) => (
-                                <Cell
-                                    key={uniqid()}
-                                    cell={cell}
+            <Button className="visualizer-button"
+                onClick={handleStartVisualization}>
+                {selectedAlgorithm ? selectedAlgorithm : "Visualize Algorithm"}
+            </Button>
+            <div className="grid-container">
+                <table
+                    className="grid"
+                    onClick={handleClickCell}
+                    onMouseMove={handleMoveCellsThrottled}
+                    onMouseDown={handleMoveWalls}
+                    onMouseUp={() => setPlacingWalls(false)}
+                >
+                    <tbody>
+                        {grid.map((row, rowIndex) => (
+                            <tr key={rowIndex}>
+                                {row.map((cell) => (
+                                    <Cell
+                                        key={uniqid()}
+                                        cell={cell}
 
-                                ></Cell>
-                            ))}
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+                                    ></Cell>
+                                ))}
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+
         </div>
     );
 

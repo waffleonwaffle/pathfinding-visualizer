@@ -7,7 +7,7 @@ const UP_LEFT = [-1, -1];
 const UP_RIGHT = [-1, 1];
 const DOWN_LEFT = [1, -1];
 const DOWN_RIGHT = [1, 1];
- 
+
 export const initializeGrid = (startCell, goalCell) => {
     const initialGrid = []
     for (let r = 0; r < 20; r++) {
@@ -22,6 +22,7 @@ export const initializeGrid = (startCell, goalCell) => {
                 weight: 1,
                 partOfPath: false,
                 searched: false,
+                clicked: false,
                 neighbors: []
             }
             row.push(cell)
@@ -39,7 +40,9 @@ export const initializeGrid = (startCell, goalCell) => {
     return initialGrid
 }
 export const updateNeighbors = (grid) => {
-    const directions = [RIGHT, UP, LEFT, DOWN];
+    // const directions = [RIGHT, UP, LEFT, DOWN];
+    const directions = [RIGHT, UP, DOWN, LEFT];
+
     // const diagonalDirections = [RIGHT, UP, LEFT, DOWN, DOWN_RIGHT, UP_RIGHT, DOWN_LEFT, UP_LEFT];
 
     for (let r = 0; r < grid.length; r++) {
@@ -73,3 +76,13 @@ export const getRowColFromTable = (event) => {
     return [row, col]
 }
 
+
+export const reconstructPath = (goalCell, cameFrom) => {
+    let path = [];
+    let current = cameFrom[JSON.stringify(goalCell)];
+    while (current !== undefined && current !== null) {
+        path.unshift(current.coords);
+        current = cameFrom[JSON.stringify(current.coords)];
+    }
+    return path
+}

@@ -3,7 +3,7 @@ import { Menu, Button } from '@mantine/core';
 const AlgorithmConfigHub = ({onAlgorithmChange}) => {
     const handleItemClick = (event) => {
         const selectedAlgorithm = event.target.innerText;
-        onAlgorithmChange(selectedAlgorithm)
+        onAlgorithmChange(selectedAlgorithm.trim())
     }
     return (
         <Menu shadow="lg" width={200}>

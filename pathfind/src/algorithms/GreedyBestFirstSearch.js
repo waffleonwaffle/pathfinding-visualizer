@@ -20,8 +20,9 @@ const GreedyBestFirstAlgo = (startNode, goalNode, grid) => {
     while (!pQueue.isEmpty()) {
         const current = pQueue.dequeue();
         searchedCells.push(current.coords)
-        if (current.isGoal) {
-            return [true, cameFrom, searchedCells]
+        if (current.isGoal) {            
+
+            return [cameFrom, searchedCells];
         }
         current.neighbors.forEach(neighbor => {
             const neighborCoords = serializeArray(neighbor.coords)
@@ -33,7 +34,7 @@ const GreedyBestFirstAlgo = (startNode, goalNode, grid) => {
             }
         });
     }
-    return [false, cameFrom, searchedCells]
+    return [cameFrom, searchedCells]
 }
 export default GreedyBestFirstAlgo
 

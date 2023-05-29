@@ -14,7 +14,7 @@ const DijkstraAlgo = (startNode, goalNode, grid) => {
         const current = pQueue.dequeue();
         searchedCells.push(current.coords)
         if (current.isGoal) {
-            return [true, cameFrom, searchedCells]
+            return [cameFrom, searchedCells];
         }
         current.neighbors.forEach(neighbor => {
             const neighboorCoords = serializeArray(neighbor.coords)
@@ -26,7 +26,7 @@ const DijkstraAlgo = (startNode, goalNode, grid) => {
             }
         });
     }
-    return [false, cameFrom, searchedCells]
+    return [cameFrom, searchedCells]
 }
 export default DijkstraAlgo
 
