@@ -2,9 +2,10 @@ const Cell = ({ cell, handleClick }) => {
     const cellType = (cell) => {
         let className = ""
         if(cell.clicked) {
-            className = "animate-cell"
-        } 
-        else if (cell.isStart || cell.isGoal) {
+            className = "animate-wall-cell"
+        } else if (cell.animate) {
+            className = "animate-path-cell"
+        } else if (cell.isStart || cell.isGoal) {
             className = "start-cell"
         } else if (cell.wall) {
             className = "wall-cell"

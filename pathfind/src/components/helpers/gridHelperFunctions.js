@@ -23,6 +23,7 @@ export const initializeGrid = (startCell, goalCell) => {
                 partOfPath: false,
                 searched: false,
                 clicked: false,
+                animate: false,
                 neighbors: []
             }
             row.push(cell)

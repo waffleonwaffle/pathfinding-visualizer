@@ -9,8 +9,7 @@ import { Button } from '@mantine/core';
 
 import GreedyBestFirstAlgo from "../algorithms/GreedyBestFirstSearch";
 import { reconstructPath, getRowColFromTable, initializeGrid, updateNeighbors } from "./helpers/gridHelperFunctions";
-
-const Grid = ({ selectedAlgorithm }) => {
+const Grid = ({ selectedAlgorithm, resetSelectedAlgorithm, selectedGridType, clearedGrid, resetClearedGrid, clearObstacles, resetClearedObstacles}) => {
     const START_CELL_COORDS = [10, 15];
     const GOAL_CELL_COORDS = [10, 35];
     const [startCell, setStartCell] = useState(START_CELL_COORDS)
@@ -33,6 +32,30 @@ const Grid = ({ selectedAlgorithm }) => {
         }
     }, [startCell, goalCell])
 
+
+    useEffect(() => {   
+        if(pathRunning) {
+            resetClearedGrid()
+            resetClearedObstacles()
+            return
+        }
+        if(clearedGrid ) {
+            setGrid(initializeGrid(START_CELL_COORDS, GOAL_CELL_COORDS))
+            resetSelectedAlgorithm()
+            resetClearedGrid();
+            setStartCell(START_CELL_COORDS)
+            setGoalCell(GOAL_CELL_COORDS)
+        } else if (clearObstacles) {
+            setGrid(prevGrid => {
+                const newGrid = prevGrid.map((row) => row.map((cell) => ({ ...cell, wall: false, weight: 1})))
+                updateNeighbors(newGrid);
+                resetClearedObstacles()
+                return newGrid;
+            });
+        }
+        
+    }, [clearedGrid, clearObstacles])
+    
     const changeCellToWall = (row, col) => {
         setGrid(prevGrid => {
             const newGrid = [...prevGrid];
@@ -41,7 +64,7 @@ const Grid = ({ selectedAlgorithm }) => {
             setTimeout(() => {
                 clickedCell.clicked = false;
                 setGrid([...newGrid]);
-            }, 50);
+            }, 30);
             clickedCell.wall = !clickedCell.wall;
             clickedCell.weight = clickedCell.weight === 1 ? Infinity : 1;
             newGrid[row][col] = clickedCell;
@@ -87,8 +110,16 @@ const Grid = ({ selectedAlgorithm }) => {
                     setPathRunning(false);
                     return
                 }
+
                 const coords = path[index]
-                newGrid[coords[0]][coords[1]].partOfPath = true;
+                const cell = newGrid[coords[0]][coords[1]]
+                cell.partOfPath = true;
+                cell.animate = true;
+                setTimeout(() => {
+                    cell.animate = false;
+                    setGrid([...newGrid]);
+                }, 30);
+
                 setGrid([...newGrid]);
                 index++
             }, 20)
@@ -215,6 +246,7 @@ const Grid = ({ selectedAlgorithm }) => {
                 onClick={handleStartVisualization}>
                 {selectedAlgorithm ? selectedAlgorithm : "Visualize Algorithm"}
             </Button>
+
             <div className="grid-container">
                 <table
                     className="grid"
@@ -244,7 +276,6 @@ const Grid = ({ selectedAlgorithm }) => {
 
 
 }
-
 
 
 export default Grid;

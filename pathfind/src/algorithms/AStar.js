@@ -17,6 +17,7 @@ const AStarAlgo = (startNode, goalNode, grid) => {
     const [row, col] = startNode
     const startCell = grid[row][col]
     pQueue.enqueue(startCell, startCell.weight)
+    console.log(grid)
     while (!pQueue.isEmpty()) {
         const current = pQueue.dequeue();
         searchedCells.push(current.coords)
