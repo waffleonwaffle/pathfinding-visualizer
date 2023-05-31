@@ -1,15 +1,19 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
+import { Button } from '@mantine/core';
 import uniqid from 'uniqid'
 import Cell from "./Cell";
 import DijkstraAlgo from "../algorithms/Dijkstra";
 import AStarAlgo from "../algorithms/AStar";
 import DFSAlgo from "../algorithms/DepthFirstSearch";
-import { Button } from '@mantine/core';
-
 import GreedyBestFirstAlgo from "../algorithms/GreedyBestFirstSearch";
-import { reconstructPath, getRowColFromTable, initializeGrid, updateNeighbors } from "./helpers/gridHelperFunctions";
-const Grid = ({ selectedAlgorithm, resetSelectedAlgorithm, selectedGridType, clearedGrid, resetClearedGrid, clearObstacles, resetClearedObstacles}) => {
+import BFSAlgo from "../algorithms/BreadthFirstSearch";
+import { reconstructPath, getRowColFromTable, initializeGrid, updateNeighbors, updateCellType } from "./helpers/gridHelperFunctions";
+
+
+const Grid = ({ selectedAlgorithm, resetSelectedAlgorithm,
+    selectedGridType, clearedGrid, resetClearedGrid,
+    clearObstacles, resetClearedObstacles, selectedCellType }) => {
     const START_CELL_COORDS = [10, 15];
     const GOAL_CELL_COORDS = [10, 35];
     const [startCell, setStartCell] = useState(START_CELL_COORDS)
@@ -29,17 +33,19 @@ const Grid = ({ selectedAlgorithm, resetSelectedAlgorithm, selectedGridType, cle
             updateGrid(GreedyBestFirstAlgo)
         } else if (selectedAlgorithm === "Depth-first Search") {
             updateGrid(DFSAlgo)
+        } else if (selectedAlgorithm === "Breadth-first Search") {
+            updateGrid(BFSAlgo)
         }
     }, [startCell, goalCell])
 
 
-    useEffect(() => {   
-        if(pathRunning) {
+    useEffect(() => {
+        if (pathRunning) {
             resetClearedGrid()
             resetClearedObstacles()
             return
         }
-        if(clearedGrid ) {
+        if (clearedGrid) {
             setGrid(initializeGrid(START_CELL_COORDS, GOAL_CELL_COORDS))
             resetSelectedAlgorithm()
             resetClearedGrid();
@@ -47,16 +53,16 @@ const Grid = ({ selectedAlgorithm, resetSelectedAlgorithm, selectedGridType, cle
             setGoalCell(GOAL_CELL_COORDS)
         } else if (clearObstacles) {
             setGrid(prevGrid => {
-                const newGrid = prevGrid.map((row) => row.map((cell) => ({ ...cell, wall: false, weight: 1})))
+                const newGrid = prevGrid.map((row) => row.map((cell) => ({ ...cell, weightType: "unweighted", weight: 1 })))
                 updateNeighbors(newGrid);
                 resetClearedObstacles()
                 return newGrid;
             });
         }
-        
+
     }, [clearedGrid, clearObstacles])
-    
-    const changeCellToWall = (row, col) => {
+
+    const changeCellType = (row, col) => {
         setGrid(prevGrid => {
             const newGrid = [...prevGrid];
             const clickedCell = { ...newGrid[row][col] };
@@ -65,8 +71,12 @@ const Grid = ({ selectedAlgorithm, resetSelectedAlgorithm, selectedGridType, cle
                 clickedCell.clicked = false;
                 setGrid([...newGrid]);
             }, 30);
-            clickedCell.wall = !clickedCell.wall;
-            clickedCell.weight = clickedCell.weight === 1 ? Infinity : 1;
+            const [updatedWeightType, updatedWeightValue] = updateCellType(clickedCell.weightType, selectedCellType, clickedCell.weight)
+            if(clickedCell.partOfPath) {
+                clickedCell.partOfPath = false
+            }
+            clickedCell.weightType = updatedWeightType
+            clickedCell.weight = updatedWeightValue
             newGrid[row][col] = clickedCell;
             updateNeighbors(newGrid);
             return newGrid;
@@ -161,7 +171,9 @@ const Grid = ({ selectedAlgorithm, resetSelectedAlgorithm, selectedGridType, cle
             setClickedWaypoint([true, clickedWaypoint[1]])
             return
         }
-        changeCellToWall(coords[0], coords[1])
+
+
+        changeCellType(coords[0], coords[1])
 
     };
 
@@ -178,7 +190,7 @@ const Grid = ({ selectedAlgorithm, resetSelectedAlgorithm, selectedGridType, cle
             if (prevRow === row && prevCol === col) {
                 return
             }
-            changeCellToWall(row, col)
+            changeCellType(row, col)
         } else if (clickedWaypoint[0]) {
             const [oldStartRow, oldStartCol] = startCell;
             if (row === oldStartRow && col === oldStartCol) {
@@ -237,15 +249,20 @@ const Grid = ({ selectedAlgorithm, resetSelectedAlgorithm, selectedGridType, cle
             animateSearchingCells(GreedyBestFirstAlgo)
         } else if (selectedAlgorithm === "Depth-first Search") {
             animateSearchingCells(DFSAlgo)
+        } else if (selectedAlgorithm === "Breadth-first Search") {
+            animateSearchingCells(BFSAlgo)
         }
     }
 
+
     return (
         <div>
-            <Button className="visualizer-button"
-                onClick={handleStartVisualization}>
-                {selectedAlgorithm ? selectedAlgorithm : "Visualize Algorithm"}
-            </Button>
+            <div className="visualizer-button-container">
+                <Button className="visualizer-button"
+                    onClick={handleStartVisualization}>
+                    {selectedAlgorithm ? selectedAlgorithm : "Visualize Algorithm"}
+                </Button>
+            </div>
 
             <div className="grid-container">
                 <table

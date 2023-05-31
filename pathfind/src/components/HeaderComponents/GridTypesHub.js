@@ -8,7 +8,7 @@ const GridTypesHub = () => {
     return (
         <Menu shadow="lg" width={200}>
             <Menu.Target>
-                <Button>Grid Types</Button>
+                <Button className="config-hub-elements">Grid Types</Button>
             </Menu.Target>
 
             <Menu.Dropdown>

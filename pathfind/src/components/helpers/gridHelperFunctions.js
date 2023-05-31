@@ -16,7 +16,7 @@ export const initializeGrid = (startCell, goalCell) => {
             const cell = {
                 id: uniqid(),
                 coords: [r, c],
-                wall: false,
+                weightType: "unweighted",
                 isStart: false,
                 isGoal: false,
                 weight: 1,
@@ -77,6 +77,26 @@ export const getRowColFromTable = (event) => {
     return [row, col]
 }
 
+export const updateCellType = (currentCellType, newCellType, currentWeightValue) => {
+    let weightType = ""
+    let weightValue = 1
+    // console.log(currentCellType, newCellType, currentWeightValue)
+    if (newCellType === "Wall") {
+        weightType = currentCellType !== "Wall" ? "Wall" : "unweighted";
+        weightValue = currentWeightValue !== Infinity ? Infinity : 1;
+    } else if (newCellType === "Sand") {
+        weightType = currentCellType !== "Sand" ? "Sand" : "unweighted";
+        weightValue = currentWeightValue !== 5 ? 5 : 1;
+    } else if (newCellType === "Water") {
+        weightType = currentCellType !== "Water" ? "Water" : "unweighted";
+        weightValue = currentWeightValue !== 10 ? 10 : 1;
+    } else if (newCellType === "Mud") {
+        weightType = currentCellType !== "Mud" ? "Mud" : "unweighted";
+        weightValue = currentWeightValue !== 50 ? 50 : 1;
+    }
+    return [weightType, weightValue]
+
+}
 
 export const reconstructPath = (goalCell, cameFrom) => {
     let path = [];

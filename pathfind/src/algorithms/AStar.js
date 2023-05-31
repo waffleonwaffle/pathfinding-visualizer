@@ -17,7 +17,6 @@ const AStarAlgo = (startNode, goalNode, grid) => {
     const [row, col] = startNode
     const startCell = grid[row][col]
     pQueue.enqueue(startCell, startCell.weight)
-    console.log(grid)
     while (!pQueue.isEmpty()) {
         const current = pQueue.dequeue();
         searchedCells.push(current.coords)
@@ -30,8 +29,6 @@ const AStarAlgo = (startNode, goalNode, grid) => {
             if (neighbor.weight !== Infinity && (!(neighborCoords in costSoFar) || pathCost < costSoFar[neighborCoords])) {
                 const heuristic_cost = ManhattanDistanceHeuristic(neighbor.coords, goalNode)
                 const total_cost = pathCost + heuristic_cost
-                // console.log(neighbor.coords, newCost, ManhattanDistanceHeuristic(neighbor.coords, goalNode), heuristic_cost)
-                // console.log(neighbor.coords, newCost, ManhattanDistanceHeuristic(neighbor.coords, goalNode) * 1.001, newCost + ManhattanDistanceHeuristic(neighbor.coords, goalNode) * 1.001)
                 costSoFar[neighborCoords] = pathCost
                 pQueue.enqueue(neighbor, total_cost)
                 cameFrom[neighborCoords] = current

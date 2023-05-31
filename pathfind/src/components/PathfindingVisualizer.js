@@ -6,13 +6,17 @@ const PathfindingVisualizer = () => {
     const [gridType, setGridType] = useState("")
     const [clearedGrid, setClearedGrid] = useState(false)
     const [clearObstacles, setClearObstacles] = useState(false)
-
+    const [selectedCellType, setCellTypee] = useState("Wall")
     const handleAlgorithmChange = (algo) => {
         setAlgorithm(algo)
     }
-    const handleGridTypeChange = (type) => {
-        setGridType(type)
+    const handleGridTypeChange = (gridType) => {
+        setGridType(gridType)
     }
+    const handleCellChange = (cellType) => {
+        setCellTypee(cellType)
+    }
+
     return (
         <div>
             <Header
@@ -20,17 +24,17 @@ const PathfindingVisualizer = () => {
                 handleGridTypeChange={handleGridTypeChange}
                 handleClearGrid={() => setClearedGrid(true)}
                 handleClearObstacles={() => setClearObstacles(true)}
-
+                handleCellChange={handleCellChange}
             ></Header>
             <Grid 
                 selectedAlgorithm={algorithm}
+                selectedCellType={selectedCellType}
                 selectedGridType={gridType}
                 clearedGrid={clearedGrid}
                 clearObstacles={clearObstacles}
                 resetSelectedAlgorithm={() => setAlgorithm("")}
                 resetClearedGrid={() => setClearedGrid(false)}
                 resetClearedObstacles={() => setClearObstacles(false)}
-
             ></Grid>
         </div>
 

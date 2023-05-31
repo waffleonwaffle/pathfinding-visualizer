@@ -1,9 +1,12 @@
 import PathfindingVisualizer from "./components/PathfindingVisualizer";
 import './styles/global.css'
+import { MantineProvider } from '@mantine/core';
 
 function App() {
   return (
-    <PathfindingVisualizer></PathfindingVisualizer>
+    <MantineProvider withNormalizeCSS>
+      <PathfindingVisualizer></PathfindingVisualizer>
+    </MantineProvider>
   );
 }
 
