@@ -1,5 +1,4 @@
 import { Menu, Button } from '@mantine/core';
-import { Select } from '@mantine/core';
 const AlgorithmConfigHub = ({onAlgorithmChange}) => {
     const handleItemClick = (event) => {
         const selectedAlgorithm = event.target.innerText;

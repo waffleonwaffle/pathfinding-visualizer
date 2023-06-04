@@ -8,22 +8,27 @@ import AStarAlgo from "../algorithms/AStar";
 import DFSAlgo from "../algorithms/DepthFirstSearch";
 import GreedyBestFirstAlgo from "../algorithms/GreedyBestFirstSearch";
 import BFSAlgo from "../algorithms/BreadthFirstSearch";
+import RecursiveDivisionAlgo from "../algorithms/MazeGeneration/RecursiveDivision";
+import RandomWeightMaze from "../algorithms/MazeGeneration/RandomWeightMaze";
 import { reconstructPath, getRowColFromTable, initializeGrid, updateNeighbors, updateCellType } from "./helpers/gridHelperFunctions";
 
-
 const Grid = ({ selectedAlgorithm, resetSelectedAlgorithm,
-    selectedGridType, clearedGrid, resetClearedGrid,
+    selectedGridType, resetGridType, clearedGrid, resetClearedGrid,
     clearObstacles, resetClearedObstacles, selectedCellType }) => {
     const START_CELL_COORDS = [10, 15];
     const GOAL_CELL_COORDS = [10, 35];
     const [startCell, setStartCell] = useState(START_CELL_COORDS)
     const [goalCell, setGoalCell] = useState(GOAL_CELL_COORDS)
-    const [grid, setGrid] = useState(initializeGrid(startCell, goalCell))
+    const [grid, setGrid] = useState([]);
     const [clickedWaypoint, setClickedWaypoint] = useState([false, false]);
     const [placingWalls, setPlacingWalls] = useState(false);
     const [previousCoordinates, setPreviousCoordinates] = useState([null, null]);
     const [pathRunning, setPathRunning] = useState(false);
     let throttledMoveWaypoints = null;
+
+    useEffect(() => {
+        setGrid(initializeGrid(startCell, goalCell));
+    }, [])
     useEffect(() => {
         if (selectedAlgorithm === "Dijkstra's Algorithm") {
             updateGrid(DijkstraAlgo)
@@ -53,26 +58,48 @@ const Grid = ({ selectedAlgorithm, resetSelectedAlgorithm,
             setGoalCell(GOAL_CELL_COORDS)
         } else if (clearObstacles) {
             setGrid(prevGrid => {
-                const newGrid = prevGrid.map((row) => row.map((cell) => ({ ...cell, weightType: "unweighted", weight: 1 })))
+                const newGrid = prevGrid.map((row) => row.map((cell) => ({ ...cell, weightType: "Unweighted", weight: 1 })))
                 updateNeighbors(newGrid);
                 resetClearedObstacles()
                 return newGrid;
             });
+        } else if (selectedGridType === "Random Grid") {
+            setGrid(prevGrid => {
+                prevGrid = prevGrid.map((row, rowIndex) => row.map((cell, colIndex) => {
+                    if (rowIndex === 0 || rowIndex === prevGrid.length - 1 || colIndex === 0 || colIndex === prevGrid[0].length - 1) {
+                        return { ...cell, partOfPath: false, searched: false, weightType: "Wall", weight: Infinity }
+                    }
+                    return { ...cell, partOfPath: false, searched: false, weightType: "Unweighted", weight: 1 }
+                }))
+                const newGrid = RecursiveDivisionAlgo(prevGrid, 0, 0, prevGrid[0].length - 1, prevGrid.length - 1, "VERTICAL")
+                updateNeighbors(newGrid)
+                resetGridType()
+                return newGrid
+            })
+
+        } else if (selectedGridType === "Random Weighted Grid") {
+            setGrid(prevGrid => {
+                prevGrid = prevGrid.map((row) => row.map((cell) => ({ ...cell, searched: false, partOfPath: false})))
+                RandomWeightMaze(prevGrid)
+                updateNeighbors(prevGrid)
+                resetGridType()
+                return prevGrid
+            })
         }
 
-    }, [clearedGrid, clearObstacles])
+    }, [clearedGrid, clearObstacles, selectedGridType])
 
     const changeCellType = (row, col) => {
         setGrid(prevGrid => {
             const newGrid = [...prevGrid];
             const clickedCell = { ...newGrid[row][col] };
-            clickedCell.clicked = true;
+            clickedCell.clickedAnimation = true;
             setTimeout(() => {
-                clickedCell.clicked = false;
+                clickedCell.clickedAnimation = false;
                 setGrid([...newGrid]);
             }, 30);
             const [updatedWeightType, updatedWeightValue] = updateCellType(clickedCell.weightType, selectedCellType, clickedCell.weight)
-            if(clickedCell.partOfPath) {
+            if (clickedCell.partOfPath) {
                 clickedCell.partOfPath = false
             }
             clickedCell.weightType = updatedWeightType
@@ -124,15 +151,15 @@ const Grid = ({ selectedAlgorithm, resetSelectedAlgorithm,
                 const coords = path[index]
                 const cell = newGrid[coords[0]][coords[1]]
                 cell.partOfPath = true;
-                cell.animate = true;
+                cell.pathAnimation = true;
                 setTimeout(() => {
-                    cell.animate = false;
+                    cell.pathAnimation = false;
                     setGrid([...newGrid]);
                 }, 30);
 
                 setGrid([...newGrid]);
                 index++
-            }, 20)
+            }, 10)
             return newGrid
         });
 
@@ -222,7 +249,7 @@ const Grid = ({ selectedAlgorithm, resetSelectedAlgorithm,
         throttledMoveWaypoints = setTimeout(() => {
             handleMoveCells(event);
             throttledMoveWaypoints = null;
-        }, 10);
+        }, 20);
     }
 
     const handleMoveWalls = (event) => {
@@ -257,6 +284,7 @@ const Grid = ({ selectedAlgorithm, resetSelectedAlgorithm,
 
     return (
         <div>
+            {/* {console.log('render')} */}
             <div className="visualizer-button-container">
                 <Button className="visualizer-button"
                     onClick={handleStartVisualization}>
@@ -279,7 +307,6 @@ const Grid = ({ selectedAlgorithm, resetSelectedAlgorithm,
                                     <Cell
                                         key={uniqid()}
                                         cell={cell}
-
                                     ></Cell>
                                 ))}
                             </tr>

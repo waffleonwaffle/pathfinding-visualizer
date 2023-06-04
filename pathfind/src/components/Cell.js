@@ -1,15 +1,15 @@
-const Cell = ({ cell }) => {
+const Cell = ({ cell}) => {
     const cellType = (cell) => {
         let className = ""
-        if (cell.clicked) {
-            className = "animate-wall-cell"
-        } else if (cell.animate) {
+        if (cell.clickedAnimation) {
+            className = "animate-weight-cell"
+        } else if (cell.pathAnimation) {
             className = "animate-path-cell"
         } else if (cell.isStart || cell.isGoal) {
-            className = "start-cell"
+            className = "waypoints"
         } else if (cell.partOfPath) {
             className = "path-cell"
-        } else if (cell.weightType !== "unweighted") {
+        } else if (cell.weightType !== "Unweighted" && !cell.searched) {
             switch (cell.weightType) {
                 case "Wall":
                     className = "wall-cell"
@@ -20,11 +20,11 @@ const Cell = ({ cell }) => {
                 case "Water":
                     className = "water-cell"
                     break;
-                case "Mud":
-                    className = "mud-cell"
+                case "Forest":
+                    className = "forest-cell"
                     break;
                 default:
-                    className = ""
+                    break
             }
         } else if (cell.searched) {
             className = "searched-cell"
@@ -36,9 +36,8 @@ const Cell = ({ cell }) => {
 
 
     return (
-        <td
-            className={cellType(cell)}
-        ></td>
+
+        <td className={cellType(cell)}>{cell.weightType !== "Unweighted" && cell.weightType !== "Wall" ? cell.weight : ""}</td>
     )
 }
 

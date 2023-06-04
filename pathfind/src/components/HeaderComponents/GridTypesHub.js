@@ -1,9 +1,9 @@
 import { Menu, Button } from '@mantine/core';
 
-const GridTypesHub = () => {
-    const handlePatternChange = (event) => {
-        const selectedAlgorithm = event.target.innerText;
-        // onAlgorithmChange(selectedAlgorithm.trim())
+const GridTypesHub = ({onGridTypeChange}) => {
+    const handleGridTypeChange = (event) => {
+        const selectedGridType = event.target.innerText;
+        onGridTypeChange(selectedGridType)
     }
     return (
         <Menu shadow="lg" width={200}>
@@ -12,9 +12,9 @@ const GridTypesHub = () => {
             </Menu.Target>
 
             <Menu.Dropdown>
-                <Menu.Item onClick={handlePatternChange}>Random Grid</Menu.Item>
-                <Menu.Item onClick={handlePatternChange}>Random Weighted Grid</Menu.Item>
-                <Menu.Item onClick={handlePatternChange}>Hexagonal Grid</Menu.Item>
+                <Menu.Item onClick={handleGridTypeChange}>Random Grid</Menu.Item>
+                <Menu.Item onClick={handleGridTypeChange}>Random Weighted Grid</Menu.Item>
+                <Menu.Item onClick={handleGridTypeChange}>Hexagonal Grid</Menu.Item>
 
             </Menu.Dropdown>
         </Menu>

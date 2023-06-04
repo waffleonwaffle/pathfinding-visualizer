@@ -32,6 +32,7 @@ const PathfindingVisualizer = () => {
                 selectedGridType={gridType}
                 clearedGrid={clearedGrid}
                 clearObstacles={clearObstacles}
+                resetGridType ={() => setGridType("")}
                 resetSelectedAlgorithm={() => setAlgorithm("")}
                 resetClearedGrid={() => setClearedGrid(false)}
                 resetClearedObstacles={() => setClearObstacles(false)}
