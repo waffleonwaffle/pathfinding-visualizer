@@ -4,16 +4,17 @@ import SettingsHub from "./HeaderComponents/SettingsHub";
 import WeightPickerHub from "./HeaderComponents/WeightPickerHub";
 import GridTypesHub from "./HeaderComponents/GridTypesHub";
 import { Button } from "@mantine/core";
-import { useState, useRef } from "react"
+import { useState, useRef, useReducer } from "react"
 import { updateNeighbors } from "./helpers/gridHelperFunctions";
-import { useClipboard } from "@mantine/hooks";
-import 'circular-json-es6'
+// import { reducer, initialState} from "../reducers";
 const INITIAL_HEAURISTIC = "Manhattan"
 const INITIAL_CELLTYPE = "Wall"
 const INITIAL_SPEEDTYPE = "Fast"
 const INITIAL_HEAURISTIC_WEIGHT = 1.001
-
+const START_CELL_COORDS = [1, 1];
+const GOAL_CELL_COORDS = [15, 35];
 const PathfindingVisualizer = () => {
+
     const [grid, setGrid] = useState([]);
     const [selectedAlgorithm, setAlgorithm] = useState("")
     const [selectedGridType, setGridType] = useState("")
@@ -23,8 +24,9 @@ const PathfindingVisualizer = () => {
     const [diagonalMovement, setDiagonalMovement] = useState(false)
     const [selectedHeuristicWeight, setHeuristicWeight] = useState(INITIAL_HEAURISTIC_WEIGHT)
     const [clearedGrid, setClearedGrid] = useState(false)
-    const [clearObstacles, setClearObstacles] = useState(false)
-    const clipboard = useClipboard({ timeout: Infinity });
+    const [clearObstacles, setClearedObstacles] = useState(false)
+    const [startCell, setStartCell] = useState(START_CELL_COORDS)
+    const [goalCell, setGoalCell] = useState(GOAL_CELL_COORDS)
     let copiedGrid = useRef(null)
     const handleAlgorithmChange = (algo) => {
         setAlgorithm(algo)
@@ -47,10 +49,8 @@ const PathfindingVisualizer = () => {
 
 
     const handleCopyGrid = async () => {
-
-        const formattedString = grid.map(row => row.map(cell => JSON.stringify(cell)).join('\t')).join('\n');
-        const testString = "{" + selectedAlgorithm + "}" + formattedString
-        console.log(testString)
+        let formattedString = grid.map(row => row.map(cell => JSON.stringify(cell)).join('\t')).join('\n');
+        formattedString = selectedAlgorithm + "}" + formattedString
         await navigator.clipboard.writeText(formattedString)
     }
 
@@ -59,24 +59,33 @@ const PathfindingVisualizer = () => {
         try {
 
             const objectStrings = text.split('}');
-            const validObjectStrings = objectStrings.filter(Boolean).map(objectString => objectString.trim() + '}');
+            const validObjectStrings = objectStrings.slice(1).filter(Boolean).map(objectString => objectString.trim() + '}');
             const objects = validObjectStrings.map(objectString => JSON.parse(objectString));
             const formattedArray = [];
             let row = []
-            for(let i = 0; i < 1000; i++){
+            for (let i = 0; i < 1000; i++) {
                 const cell = objects[i]
-                cell.weight = cell.weight === null ? Infinity: cell.weight
+                cell.weight = cell.weight === null ? Infinity : cell.weight
                 row.push(objects[i])
-                if((i + 1) % 50 === 0) {
+
+                if(cell.isStart) {
+                    setStartCell(cell.coords)
+                } else if(cell.isGoal){
+                    setGoalCell(cell.coords)
+
+                }
+                if ((i + 1) % 50 === 0) {
                     formattedArray.push(row)
                     row = []
                 }
             }
             updateNeighbors(formattedArray, diagonalMovement)
             setGrid(formattedArray)
+            setAlgorithm(objectStrings[0])
+
 
         } catch (error) {
-            console.log('wrong text')
+            console.log(error)
         }
     }
     return (
@@ -86,7 +95,7 @@ const PathfindingVisualizer = () => {
                 <AlgorithmConfigHub onAlgorithmChange={handleAlgorithmChange}></AlgorithmConfigHub>
                 <GridTypesHub onGridTypeChange={handleGridTypeChange}></GridTypesHub>
                 <Button className="config-hub-elements" onClick={() => setClearedGrid(true)}>Clear Board</Button>
-                <Button className="config-hub-elements" onClick={() => setClearObstacles(true)}>Clear Obstacles</Button>
+                <Button className="config-hub-elements" onClick={() => setClearedObstacles(true)}>Clear Obstacles</Button>
                 <WeightPickerHub onCellTypeChange={handleCellChange} className="config-hub-elements">Weight Picker</WeightPickerHub>
                 <SettingsHub
                     selectedHeuristic={selectedHeuristic}
@@ -105,6 +114,10 @@ const PathfindingVisualizer = () => {
 
             <Grid
                 grid={grid}
+                startCell={startCell}
+                goalCell={goalCell}
+                setGoalCell={setGoalCell}
+                setStartCell={setStartCell}
                 selectedAlgorithm={selectedAlgorithm}
                 selectedCellType={selectedCellType}
                 selectedGridType={selectedGridType}
@@ -118,7 +131,7 @@ const PathfindingVisualizer = () => {
                 resetGridType={() => setGridType("")}
                 resetSelectedAlgorithm={() => setAlgorithm("")}
                 resetClearedGrid={() => setClearedGrid(false)}
-                resetClearedObstacles={() => setClearObstacles(false)}
+                resetClearedObstacles={() => setClearedObstacles(false)}
             ></Grid>
         </div >
 

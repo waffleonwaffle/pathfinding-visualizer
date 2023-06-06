@@ -16,6 +16,11 @@ import IDAStarAlgo from "../algorithms/IDA*";
 
 const Grid = ({
     grid,
+    setGrid,
+    startCell, 
+    goalCell,
+    setStartCell, 
+    setGoalCell,
     selectedAlgorithm,
     selectedGridType,
     selectedCellType,
@@ -25,20 +30,20 @@ const Grid = ({
     selectedHeuristicWeight,
     resetSelectedAlgorithm,
     resetGridType,
-    setGrid,
     clearedGrid,
     resetClearedGrid,
     clearObstacles,
-    resetClearedObstacles
+    resetClearedObstacles, 
 }) => {
     const START_CELL_COORDS = [1, 1];
     const GOAL_CELL_COORDS = [15, 35];
-    const [startCell, setStartCell] = useState(START_CELL_COORDS)
-    const [goalCell, setGoalCell] = useState(GOAL_CELL_COORDS)
+    // const [startCell, setStartCell] = useState(START_CELL_COORDS)
+    // const [goalCell, setGoalCell] = useState(GOAL_CELL_COORDS)
     const [clickedWaypoint, setClickedWaypoint] = useState([false, false]);
     const [placingWalls, setPlacingWalls] = useState(false);
     const [previousCoordinates, setPreviousCoordinates] = useState([null, null]);
     const [pathRunning, setPathRunning] = useState(false);
+    const heuristicObject = { heuristic: selectedHeuristic, heuristicWeight: selectedHeuristicWeight }
     let throttledMoveWaypoints = null;
     let totalVisitedCells = useRef(null)
     let totalExecutionTime = useRef(null)
@@ -50,6 +55,7 @@ const Grid = ({
         if (selectedAlgorithm === "Dijkstra's Algorithm") {
             updateGrid(DijkstraAlgo)
         } else if (selectedAlgorithm === "A* Search") {
+            console.log('hi')
             updateGrid(AStarAlgo)
         } else if (selectedAlgorithm === "Greedy best-first Search") {
             updateGrid(GreedyBestFirstAlgo)
@@ -192,7 +198,7 @@ const Grid = ({
 
     };
     const updateGrid = (algo) => {
-        const [cameFrom, searchedCells] = algo(startCell, goalCell, grid, { heuristic: selectedHeuristic, heuristicWeight: selectedHeuristicWeight });
+        const [cameFrom, searchedCells] = algo(grid, startCell, goalCell, heuristicObject);
         const newGrid = grid.map((row) => row.map((cell) => ({ ...cell, searched: false, partOfPath: false })));
         const path = reconstructPath(goalCell, cameFrom)
         if (!path) {
@@ -298,7 +304,7 @@ const Grid = ({
         if (pathRunning) {
             return
         }
-        const heuristicObject = { heuristic: selectedHeuristic, heuristicWeight: selectedHeuristicWeight }
+        // const heuristicObject = { heuristic: selectedHeuristic, heuristicWeight: selectedHeuristicWeight }
         if (selectedAlgorithm === "Dijkstra's Algorithm") {
             animateSearchingCells(DijkstraAlgo)
         } else if (selectedAlgorithm === "A* Search") {

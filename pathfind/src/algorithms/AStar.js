@@ -18,6 +18,7 @@ const AStarAlgo = (grid, startNode, goalNode, heuristicInfo) => {
         current.neighbors.forEach(neighborId => {
             const [curRow, curCol] = current.coords
             const neighbor = findNeighbor(curRow, curCol, neighborId, grid)
+
             const neighborCoords = serializeArray(neighbor.coords)
             const pathCost = neighbor.weight + costSoFar[serializeArray(current.coords)]
             if (neighbor.weight !== Infinity && (!(neighborCoords in costSoFar) || pathCost < costSoFar[neighborCoords])) {
