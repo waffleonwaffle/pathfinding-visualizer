@@ -1,6 +1,6 @@
 import { Menu, Button } from '@mantine/core';
 const AlgorithmConfigHub = ({onAlgorithmChange}) => {
-    const handleItemClick = (event) => {
+    const handleAlgorithmChange = (event) => {
         const selectedAlgorithm = event.target.innerText;
         onAlgorithmChange(selectedAlgorithm.trim())
     }
@@ -10,11 +10,12 @@ const AlgorithmConfigHub = ({onAlgorithmChange}) => {
                 <Button className="config-hub-elements">Algorithms</Button>
             </Menu.Target>
             <Menu.Dropdown>
-                <Menu.Item onClick={handleItemClick}>Depth-first Search</Menu.Item>
-                <Menu.Item onClick={handleItemClick}>Breadth-first Search</Menu.Item>
-                <Menu.Item onClick={handleItemClick}>Dijkstra's Algorithm</Menu.Item>
-                <Menu.Item onClick={handleItemClick}>A* Search</Menu.Item>
-                <Menu.Item onClick={handleItemClick}>Greedy best-first Search</Menu.Item>
+                <Menu.Item onClick={handleAlgorithmChange}>Depth-first Search</Menu.Item>
+                <Menu.Item onClick={handleAlgorithmChange}>Breadth-first Search</Menu.Item>
+                <Menu.Item onClick={handleAlgorithmChange}>Dijkstra's Algorithm</Menu.Item>
+                <Menu.Item onClick={handleAlgorithmChange}>Greedy best-first Search</Menu.Item>
+                <Menu.Item onClick={handleAlgorithmChange}>A* Search</Menu.Item>
+                {/* <Menu.Item onClick={handleAlgorithmChange}>IDA*</Menu.Item> */}
 
             </Menu.Dropdown>
         </Menu>

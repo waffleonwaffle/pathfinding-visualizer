@@ -5,6 +5,8 @@ const UP_LEFT = [-1, -1];
 const UP_RIGHT = [-1, 1];
 const DOWN_LEFT = [1, -1];
 const DOWN_RIGHT = [1, 1];
+const diagonalDirections = [RIGHT, UP, LEFT, DOWN, DOWN_RIGHT, UP_RIGHT, DOWN_LEFT, UP_LEFT];
+const orthogonalDirections = [RIGHT, UP, DOWN, LEFT];
 
 export const initializeGrid = (startCell, goalCell, diagonalMovement) => {
     let initialGrid = []
@@ -38,15 +40,15 @@ export const initializeGrid = (startCell, goalCell, diagonalMovement) => {
     initialGrid[goalRow][goalCol].weight = 1
     initialGrid[goalRow][goalCol].weightType = UNWEIGHTED
 
-    updateAllNeighbors(initialGrid, diagonalMovement);
+    updateNeighbors(initialGrid, diagonalMovement);
     return initialGrid
 }
-export const updateAllNeighbors = (grid, diagonalMovement) => {
+export const updateNeighbors = (grid, diagonalMovement) => {
     let directions;
-    if(diagonalMovement) {
-        directions = [RIGHT, UP, LEFT, DOWN, DOWN_RIGHT, UP_RIGHT, DOWN_LEFT, UP_LEFT];
+    if (diagonalMovement) {
+        directions = diagonalDirections
     } else {
-        directions = [RIGHT, UP, DOWN, LEFT];
+        directions = orthogonalDirections
     }
     for (let r = 0; r < grid.length; r++) {
         for (let c = 0; c < grid[0].length; c++) {
@@ -58,11 +60,26 @@ export const updateAllNeighbors = (grid, diagonalMovement) => {
                 if (row >= grid.length || row < 0 || col >= grid[0].length || col < 0) {
                     continue
                 }
-                cell.neighbors.push(grid[row][col])
+                cell.neighbors.push(grid[row][col].id)
             }
 
         }
     }
+}
+
+export const findNeighbor = (r, c, neighborId, grid) => {
+    for (const [dr, dc] of diagonalDirections) {
+        const row = r + dr
+        const col = c + dc
+        if (row >= grid.length || row < 0 || col >= grid[0].length || col < 0) {
+            continue
+        }
+
+        if(grid[row][col].id === neighborId){
+            return grid[row][col]
+        }
+    }
+
 }
 
 export const getRowColFromTable = (event) => {
@@ -83,7 +100,7 @@ export const updateCellType = (currentCellType, newCellType, currentWeightValue)
     let weightType = ""
     let weightValue = 1
     if (newCellType === "Wall") {
-        weightType = currentCellType !== "Wall"  ? "Wall" : UNWEIGHTED;
+        weightType = currentCellType !== "Wall" ? "Wall" : UNWEIGHTED;
         weightValue = currentWeightValue !== Infinity ? Infinity : 1;
     } else if (newCellType === SAND) {
         weightType = currentCellType !== SAND ? SAND : UNWEIGHTED;
@@ -114,11 +131,11 @@ export const serializeArray = (arr) => {
 }
 
 export const setAnimationSpeed = (speedType) => {
-    if(speedType === "Fast") {
+    if (speedType === "Fast") {
         return 20
-    } else if(speedType === "Medium") {
+    } else if (speedType === "Medium") {
         return 70
     } else {
         return 300
-    } 
+    }
 }

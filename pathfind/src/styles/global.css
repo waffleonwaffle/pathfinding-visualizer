@@ -2,10 +2,6 @@ header {
     font-family: 'Montserrat';
 }
 
-table {
-    z-index: 1;
-    background-color: white;
-}
 
 .config-hub {
     display: flex;
@@ -150,7 +146,9 @@ td {
 .speed-picker {
     padding: 5px;
 }
-.heuristic-button, .speed-button{
+.heuristic-button, .speed-button, .weight-slider{
+    display: flex;
+    flex-direction: row;
     padding: 2px;
 }
 
@@ -164,7 +162,7 @@ td {
     flex-wrap: wrap;
     font-family: 'Inconsolata';
     font-weight: 300;
-    height: 4rem;
+    height: 5rem;
     padding-left: 4px;
 }
 

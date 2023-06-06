@@ -1,5 +1,5 @@
-import { serializeArray } from "../components/helpers/gridHelperFunctions"
-const BFSAlgo = (startNode, goalNode, grid) => {
+import { serializeArray, findNeighbor } from "../components/helpers/gridHelperFunctions"
+const BFSAlgo = (grid, startNode, goalNode=null, heuristicInfo=null) => {
     let cameFrom = {[serializeArray(startNode)]: null }
     let searchedCells = []
     const [row, col] = startNode
@@ -11,7 +11,9 @@ const BFSAlgo = (startNode, goalNode, grid) => {
         if (current.isGoal) {
             return [cameFrom, searchedCells];
         }
-        current.neighbors.forEach(neighbor => {
+        current.neighbors.forEach(neighborId => {
+            const [curRow, curCol] = current.coords
+            const neighbor = findNeighbor(curRow, curCol, neighborId, grid)
             const neighboorCoords = serializeArray(neighbor.coords)
             if (neighbor.weight !== Infinity && !(neighboorCoords in cameFrom)) {
                 queue.push(neighbor)

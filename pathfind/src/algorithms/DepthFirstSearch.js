@@ -1,5 +1,5 @@
-import { serializeArray } from "../components/helpers/gridHelperFunctions"
-const DFSAlgo = (startNode, goalNode, grid) => {
+import { serializeArray, findNeighbor } from "../components/helpers/gridHelperFunctions"
+const DFSAlgo = (grid, startNode, goalNode=null, heuristicInfo=null ) => {
     let stack = []
     let cameFrom = { [serializeArray(startNode)]: null }
     let searchedCells = []
@@ -20,7 +20,9 @@ const DFSAlgo = (startNode, goalNode, grid) => {
 
             return [cameFrom, searchedCells, path];
         }
-        current.neighbors.forEach(neighbor => {
+        current.neighbors.forEach(neighborId => {
+            const [curRow, curCol] = current.coords
+            const neighbor = findNeighbor(curRow, curCol, neighborId, grid)
             const neighborCoords = serializeArray(neighbor.coords)
             if (neighbor.weight !== Infinity && !(neighborCoords in cameFrom)) {
                 cameFrom[neighborCoords] = current

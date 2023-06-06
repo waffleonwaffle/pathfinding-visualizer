@@ -1,4 +1,4 @@
-const AlgoStats = ({ algorithm, totalVisitedCells, totalExecutionTime }) => {
+const AlgoStats = ({ algorithm, totalVisitedCells, totalExecutionTime, totalPathCost }) => {
     if (!algorithm || !totalVisitedCells || !totalExecutionTime) {
         return null
     }
@@ -9,6 +9,9 @@ const AlgoStats = ({ algorithm, totalVisitedCells, totalExecutionTime }) => {
             </div>
             <div>
                 <span style={{ fontWeight: 'bold' }}>Total Visited Cells:</span> {totalVisitedCells}
+            </div>
+            <div>
+                <span style={{ fontWeight: 'bold' }}>Shortest Path Cost:</span>  {totalPathCost}
             </div>
             <div>
                 <span style={{ fontWeight: 'bold' }}>Total Execution Time:</span>  {totalExecutionTime} ms

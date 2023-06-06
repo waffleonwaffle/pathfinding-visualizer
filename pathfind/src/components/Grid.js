@@ -11,17 +11,21 @@ import GreedyBestFirstAlgo from "../algorithms/GreedyBestFirstSearch";
 import BFSAlgo from "../algorithms/BreadthFirstSearch";
 import RecursiveDivisionAlgo from "../algorithms/MazeGeneration/RecursiveDivision";
 import RandomWeightMaze from "../algorithms/MazeGeneration/RandomWeightMaze";
-import { reconstructPath, getRowColFromTable, initializeGrid, updateAllNeighbors, updateCellType, setAnimationSpeed } from "./helpers/gridHelperFunctions";
+import { reconstructPath, getRowColFromTable, initializeGrid, updateNeighbors, updateCellType, setAnimationSpeed } from "./helpers/gridHelperFunctions";
+import IDAStarAlgo from "../algorithms/IDA*";
 
 const Grid = ({
+    grid,
     selectedAlgorithm,
     selectedGridType,
     selectedCellType,
     selectedHeuristic,
     diagonalMovement,
     selectedSpeedType,
+    selectedHeuristicWeight,
     resetSelectedAlgorithm,
     resetGridType,
+    setGrid,
     clearedGrid,
     resetClearedGrid,
     clearObstacles,
@@ -31,7 +35,6 @@ const Grid = ({
     const GOAL_CELL_COORDS = [15, 35];
     const [startCell, setStartCell] = useState(START_CELL_COORDS)
     const [goalCell, setGoalCell] = useState(GOAL_CELL_COORDS)
-    const [grid, setGrid] = useState([]);
     const [clickedWaypoint, setClickedWaypoint] = useState([false, false]);
     const [placingWalls, setPlacingWalls] = useState(false);
     const [previousCoordinates, setPreviousCoordinates] = useState([null, null]);
@@ -39,7 +42,7 @@ const Grid = ({
     let throttledMoveWaypoints = null;
     let totalVisitedCells = useRef(null)
     let totalExecutionTime = useRef(null)
-
+    let totalPathCost = useRef(0)
     useEffect(() => {
         setGrid(initializeGrid(startCell, goalCell, diagonalMovement));
     }, [])
@@ -47,7 +50,7 @@ const Grid = ({
         if (selectedAlgorithm === "Dijkstra's Algorithm") {
             updateGrid(DijkstraAlgo)
         } else if (selectedAlgorithm === "A* Search") {
-            updateGrid(AStarAlgo, selectedHeuristic)
+            updateGrid(AStarAlgo)
         } else if (selectedAlgorithm === "Greedy best-first Search") {
             updateGrid(GreedyBestFirstAlgo)
         } else if (selectedAlgorithm === "Depth-first Search") {
@@ -97,7 +100,7 @@ const Grid = ({
             })
         }
         setGrid(prevGrid => {
-            updateAllNeighbors(prevGrid, diagonalMovement)
+            updateNeighbors(prevGrid, diagonalMovement)
             return prevGrid
         });
 
@@ -117,32 +120,31 @@ const Grid = ({
             }
             clickedCell.weightType = updatedWeightType
             clickedCell.weight = updatedWeightValue
-
             clickedCell.clickedAnimation = true;
             setTimeout(() => {
                 clickedCell.clickedAnimation = false;
                 setGrid([...newGrid]);
-            }, 40);
+            }, 30);
             newGrid[row][col] = clickedCell;
-            updateAllNeighbors(newGrid, diagonalMovement);
+            updateNeighbors(newGrid, diagonalMovement);
             return newGrid;
         });
         setPreviousCoordinates([row, col]);
     }
 
-    const animateSearchingCells = (algo, selectedHeuristic = "") => {
+    const animateSearchingCells = (algo, heuristicInfo = {}) => {
         setPathRunning(true);
-        const [cameFrom, searchedCells] = algo(startCell, goalCell, grid, selectedHeuristic);
+        const [cameFrom, searchedCells] = algo(grid, startCell, goalCell, heuristicInfo);
         totalVisitedCells.current = searchedCells.length
         let currentIndex = 1;
         const newGrid = grid.map((row) => row.map((cell) => { return { ...cell, searched: false, partOfPath: false } }))
         const startTime = performance.now();
         const searchingCellsInterval = setInterval(() => {
             if (currentIndex >= searchedCells.length) {
+                const endTime = performance.now();
                 updateVisualization(cameFrom)
                 clearInterval(searchingCellsInterval);
                 setGrid(newGrid);
-                const endTime = performance.now();
                 totalExecutionTime.current = Math.round(endTime - startTime)
                 return;
             }
@@ -181,7 +183,7 @@ const Grid = ({
                     cell.pathAnimation = false;
                     setGrid([...newGrid]);
                 }, 30);
-
+                totalPathCost.current += cell.weight
                 setGrid([...newGrid]);
                 index++
             }, setAnimationSpeed(selectedSpeedType))
@@ -190,7 +192,7 @@ const Grid = ({
 
     };
     const updateGrid = (algo) => {
-        const [cameFrom, searchedCells] = algo(startCell, goalCell, grid, selectedHeuristic);
+        const [cameFrom, searchedCells] = algo(startCell, goalCell, grid, { heuristic: selectedHeuristic, heuristicWeight: selectedHeuristicWeight });
         const newGrid = grid.map((row) => row.map((cell) => ({ ...cell, searched: false, partOfPath: false })));
         const path = reconstructPath(goalCell, cameFrom)
         if (!path) {
@@ -251,7 +253,7 @@ const Grid = ({
             newGrid[oldStartRow][oldStartCol].isStart = false;
             newGrid[row][col].isStart = true;
             setStartCell([row, col]);
-            updateAllNeighbors(newGrid, diagonalMovement)
+            updateNeighbors(newGrid, diagonalMovement)
             setGrid(newGrid);
         }
         else if (clickedWaypoint[1]) {
@@ -262,7 +264,7 @@ const Grid = ({
             newGrid[oldGoalRow][oldGoalCol].isGoal = false;
             newGrid[row][col].isGoal = true;
             setGoalCell([row, col]);
-            updateAllNeighbors(newGrid, diagonalMovement)
+            updateNeighbors(newGrid, diagonalMovement)
             setGrid(newGrid);
         }
     };
@@ -292,19 +294,24 @@ const Grid = ({
     const handleStartVisualization = () => {
         totalVisitedCells.current = null
         totalExecutionTime.current = null
+        totalPathCost.current = null
         if (pathRunning) {
             return
         }
+        const heuristicObject = { heuristic: selectedHeuristic, heuristicWeight: selectedHeuristicWeight }
         if (selectedAlgorithm === "Dijkstra's Algorithm") {
             animateSearchingCells(DijkstraAlgo)
         } else if (selectedAlgorithm === "A* Search") {
-            animateSearchingCells(AStarAlgo, selectedHeuristic)
+            console.log(grid)
+            animateSearchingCells(AStarAlgo, heuristicObject)
         } else if (selectedAlgorithm === "Greedy best-first Search") {
-            animateSearchingCells(GreedyBestFirstAlgo)
+            animateSearchingCells(GreedyBestFirstAlgo, heuristicObject)
         } else if (selectedAlgorithm === "Depth-first Search") {
             animateSearchingCells(DFSAlgo)
         } else if (selectedAlgorithm === "Breadth-first Search") {
             animateSearchingCells(BFSAlgo)
+        } else if (selectedAlgorithm === "IDA*") {
+            animateSearchingCells(IDAStarAlgo, heuristicObject)
         }
     }
 
@@ -318,14 +325,18 @@ const Grid = ({
                 </Button>
             </div>
             <div className="grid-container">
-                <AlgoStats algorithm={selectedAlgorithm} totalVisitedCells={totalVisitedCells.current} totalExecutionTime={totalExecutionTime.current}></AlgoStats>
+                <AlgoStats
+                    algorithm={selectedAlgorithm}
+                    totalVisitedCells={totalVisitedCells.current}
+                    totalExecutionTime={totalExecutionTime.current}
+                    totalPathCost={totalPathCost.current}>
+                </AlgoStats>
                 <table
                     className="grid"
                     onClick={handleClickCell}
                     onMouseMove={handleMoveCellsThrottled}
                     onMouseDown={handleMoveWalls}
-                    onMouseUp={() => setPlacingWalls(false)}
-                >
+                    onMouseUp={() => setPlacingWalls(false)}>
                     <tbody>
                         {grid.map((row, rowIndex) => (
                             <tr key={rowIndex}>
