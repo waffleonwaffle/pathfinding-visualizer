@@ -1,16 +1,6 @@
 import PriorityQueue from "../components/helpers/PriorityQueue"
 import { serializeArray } from "../components/helpers/gridHelperFunctions"
 const D = 1.001
-
-// const OctileDistanceHeuristic = (a, b) => {
-//     const [x1, y1] = a
-//     const [x2, y2] = b
-//     const dx = Math.abs(x2 - x1)
-//     const dy = Math.abs(y2 - y1)
-//     const distance = Math.max(dx, dy) + (Math.sqrt(2) - 1) * Math.min(dx, dy)
-//     return D * distance
-// }
-
 const ChebyshevDistanceHeuristic = (a, b) => {
     const [x1, y1] = a
     const [x2, y2] = b
@@ -51,6 +41,18 @@ const calcHeuristicDistance = (heuristic, a, b) => {
             break
     }
 }
+
+const JPSAlgo = (currentNode, startNode, goalNode) => {
+    let cameFrom = { [serializeArray(startNode)]: null }
+    const openSet = new PriorityQueue()
+    openSet.enqueue(startCell, startCell.weight)
+    while(!openSet.isEmpty()){
+        const current = openSet.dequeue();
+        closed.a
+    }
+}
+
+
 const AStarAlgo = (startNode, goalNode, grid, selectedHeuristic) => {
     let pQueue = new PriorityQueue()
     let cameFrom = { [serializeArray(startNode)]: null }
@@ -79,11 +81,3 @@ const AStarAlgo = (startNode, goalNode, grid, selectedHeuristic) => {
     }
     return [cameFrom, searchedCells]
 }
-
-// const 
-export default AStarAlgo
-
-
-
-
-                

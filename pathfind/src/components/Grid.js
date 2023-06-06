@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Button } from '@mantine/core';
+import AlgoStats from "./AlgoStats";
 import uniqid from 'uniqid'
 import Cell from "./Cell";
 import DijkstraAlgo from "../algorithms/Dijkstra";
@@ -26,8 +27,8 @@ const Grid = ({
     clearObstacles,
     resetClearedObstacles
 }) => {
-    const START_CELL_COORDS = [10, 15];
-    const GOAL_CELL_COORDS = [10, 35];
+    const START_CELL_COORDS = [1, 1];
+    const GOAL_CELL_COORDS = [15, 35];
     const [startCell, setStartCell] = useState(START_CELL_COORDS)
     const [goalCell, setGoalCell] = useState(GOAL_CELL_COORDS)
     const [grid, setGrid] = useState([]);
@@ -36,6 +37,8 @@ const Grid = ({
     const [previousCoordinates, setPreviousCoordinates] = useState([null, null]);
     const [pathRunning, setPathRunning] = useState(false);
     let throttledMoveWaypoints = null;
+    let totalVisitedCells = useRef(null)
+    let totalExecutionTime = useRef(null)
 
     useEffect(() => {
         setGrid(initializeGrid(startCell, goalCell, diagonalMovement));
@@ -104,11 +107,7 @@ const Grid = ({
         setGrid(prevGrid => {
             const newGrid = [...prevGrid];
             const clickedCell = { ...newGrid[row][col] };
-            clickedCell.clickedAnimation = true;
-            setTimeout(() => {
-                clickedCell.clickedAnimation = false;
-                setGrid([...newGrid]);
-            }, 30);
+
             const [updatedWeightType, updatedWeightValue] = updateCellType(clickedCell.weightType, selectedCellType, clickedCell.weight)
             if (clickedCell.partOfPath) {
                 clickedCell.partOfPath = false
@@ -118,6 +117,12 @@ const Grid = ({
             }
             clickedCell.weightType = updatedWeightType
             clickedCell.weight = updatedWeightValue
+
+            clickedCell.clickedAnimation = true;
+            setTimeout(() => {
+                clickedCell.clickedAnimation = false;
+                setGrid([...newGrid]);
+            }, 40);
             newGrid[row][col] = clickedCell;
             updateAllNeighbors(newGrid, diagonalMovement);
             return newGrid;
@@ -128,19 +133,24 @@ const Grid = ({
     const animateSearchingCells = (algo, selectedHeuristic = "") => {
         setPathRunning(true);
         const [cameFrom, searchedCells] = algo(startCell, goalCell, grid, selectedHeuristic);
+        totalVisitedCells.current = searchedCells.length
         let currentIndex = 1;
         const newGrid = grid.map((row) => row.map((cell) => { return { ...cell, searched: false, partOfPath: false } }))
+        const startTime = performance.now();
         const searchingCellsInterval = setInterval(() => {
             if (currentIndex >= searchedCells.length) {
                 updateVisualization(cameFrom)
                 clearInterval(searchingCellsInterval);
                 setGrid(newGrid);
+                const endTime = performance.now();
+                totalExecutionTime.current = Math.round(endTime - startTime)
                 return;
             }
             const searchedCell = searchedCells[currentIndex]
             newGrid[searchedCell[0]][searchedCell[1]].searched = true;
             setGrid([...newGrid]);
             currentIndex++;
+
         }, setAnimationSpeed(selectedSpeedType));
     };
 
@@ -150,7 +160,7 @@ const Grid = ({
             setPathRunning(false);
             return
         }
-        
+
         setGrid((prevGrid) => {
             const newGrid = prevGrid.map((row) =>
                 row.map((cell) => ({ ...cell, partOfPath: false }))
@@ -280,6 +290,8 @@ const Grid = ({
     }
 
     const handleStartVisualization = () => {
+        totalVisitedCells.current = null
+        totalExecutionTime.current = null
         if (pathRunning) {
             return
         }
@@ -299,15 +311,14 @@ const Grid = ({
 
     return (
         <div>
-            {/* {console.log('render')} */}
             <div className="visualizer-button-container">
                 <Button className="visualizer-button"
                     onClick={handleStartVisualization}>
                     Run {selectedAlgorithm ? selectedAlgorithm : "Visualize Algorithm"}
                 </Button>
             </div>
-
             <div className="grid-container">
+                <AlgoStats algorithm={selectedAlgorithm} totalVisitedCells={totalVisitedCells.current} totalExecutionTime={totalExecutionTime.current}></AlgoStats>
                 <table
                     className="grid"
                     onClick={handleClickCell}

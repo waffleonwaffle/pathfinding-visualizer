@@ -1,7 +1,7 @@
 const Cell = ({ cell }) => {
     const cellType = (cell) => {
         let className = ""
-        if (cell.clickedAnimation) {
+        if (cell.clickedAnimation && cell.weight === Infinity) {
             className = "animate-weight-cell"
         } else if (cell.pathAnimation) {
             className = "animate-path-cell"
@@ -11,8 +11,7 @@ const Cell = ({ cell }) => {
             className = "path-cell"
         } else if (cell.searched) {
             className = "searched-cell"        
-        } 
-        else if (cell.weight !== "Unweighted") {
+        } else if (cell.weightType !== "Unweighted") {
             switch (cell.weightType) {
                 case "Wall":
                     className = "wall-cell"
@@ -33,6 +32,7 @@ const Cell = ({ cell }) => {
         else {
             className = "grid-cell"
         }
+        // console.log(className)
         return className
     }
 

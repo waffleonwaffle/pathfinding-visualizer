@@ -15,7 +15,7 @@ const SettingsHub = ({ onHeuristicChange, onMovementChange, onSpeedChange, selec
         <Menu shadow="lg" width={200}>
             <Menu.Target>
                 <Button className="config-hub-elements">
-                    <IconSettings></IconSettings>
+                    <IconSettings className='settings-icon'></IconSettings>
                 </Button>
 
             </Menu.Target>
@@ -23,22 +23,22 @@ const SettingsHub = ({ onHeuristicChange, onMovementChange, onSpeedChange, selec
             <Menu.Dropdown className="settings">
                 <section className="heuristic-picker">
                     <span style={{ fontWeight: 'bold' }}>Heuristic:</span>
-                    <Radio.Group className='mantine-radio-group' defaultValue={selectedHeuristic}>
-                        <Radio onClick={handleHeuristicChange} value="Manhattan" label="Manhattan" />
-                        <Radio onClick={handleHeuristicChange} value="Euclidean" label="Euclidean" />
-                        <Radio onClick={handleHeuristicChange} value="Chebyshev" label="Chebyshev" />
+                    <Radio.Group defaultValue={selectedHeuristic}>
+                        <Radio className='heuristic-button' onClick={handleHeuristicChange} value="Manhattan" label="Manhattan" />
+                        <Radio className='heuristic-button' onClick={handleHeuristicChange} value="Euclidean" label="Euclidean" />
+                        <Radio className='heuristic-button' onClick={handleHeuristicChange} value="Chebyshev" label="Chebyshev" />
                     </Radio.Group>
                 </section>
                 <section className="movement-picker">
-                    <Checkbox className='mantine-checkbox' checked={diagonalMovement} onChange={onMovementChange} label="8-Directional Movement" />
+                    <Checkbox checked={diagonalMovement} onChange={onMovementChange} label="8-Directional Movement" />
                 </section>
 
                 <section className="speed-picker">
                     <span style={{ fontWeight: 'bold' }}>Animation Speed (s):</span>
-                    <Radio.Group className='mantine-radio-group' defaultValue={selectedSpeedType}>
-                        <Radio onClick={handleSpeedChange} value="Fast" label="Fast" />
-                        <Radio onClick={handleSpeedChange} value="Medium" label="Medium" />
-                        <Radio onClick={handleSpeedChange} value="Slow" label="Slow" />
+                    <Radio.Group defaultValue={selectedSpeedType}>
+                        <Radio className='speed-button' onClick={handleSpeedChange} value="Fast" label="Fast" />
+                        <Radio className='speed-button' onClick={handleSpeedChange} value="Medium" label="Medium" />
+                        <Radio className='speed-button' onClick={handleSpeedChange} value="Slow" label="Slow" />
                     </Radio.Group>
                 </section>
             </Menu.Dropdown>

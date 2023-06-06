@@ -36,6 +36,7 @@ const PathfindingVisualizer = () => {
     return (
         <div>
             <div className="config-hub">
+            <header>Pathfinding Visualizer</header>
                 <AlgorithmConfigHub onAlgorithmChange={handleAlgorithmChange}></AlgorithmConfigHub>
                 <GridTypesHub onGridTypeChange={handleGridTypeChange}></GridTypesHub>
                 <Button className="config-hub-elements" onClick={() => setClearedGrid(true)}>Clear Board</Button>

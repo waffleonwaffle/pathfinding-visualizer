@@ -1,7 +1,5 @@
 import PriorityQueue from "../components/helpers/PriorityQueue"
-const serializeArray = (arr) => {
-    return JSON.stringify(arr);
-}
+import { serializeArray } from "../components/helpers/gridHelperFunctions"
 const DijkstraAlgo = (startNode, goalNode, grid) => {
     let pQueue = new PriorityQueue()
     let cameFrom = {[serializeArray(startNode)]: null }

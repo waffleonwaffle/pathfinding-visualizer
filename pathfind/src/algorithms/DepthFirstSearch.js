@@ -1,6 +1,4 @@
-const serializeArray = (arr) => {
-    return JSON.stringify(arr);
-}
+import { serializeArray } from "../components/helpers/gridHelperFunctions"
 const DFSAlgo = (startNode, goalNode, grid) => {
     let stack = []
     let cameFrom = { [serializeArray(startNode)]: null }

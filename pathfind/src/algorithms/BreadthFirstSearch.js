@@ -1,6 +1,4 @@
-const serializeArray = (arr) => {
-    return JSON.stringify(arr);
-}
+import { serializeArray } from "../components/helpers/gridHelperFunctions"
 const BFSAlgo = (startNode, goalNode, grid) => {
     let cameFrom = {[serializeArray(startNode)]: null }
     let searchedCells = []
