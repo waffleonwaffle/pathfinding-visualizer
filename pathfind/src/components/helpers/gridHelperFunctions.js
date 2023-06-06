@@ -6,11 +6,7 @@ const UP_RIGHT = [-1, 1];
 const DOWN_LEFT = [1, -1];
 const DOWN_RIGHT = [1, 1];
 
-
-
-
-
-export const initializeGrid = (startCell, goalCell) => {
+export const initializeGrid = (startCell, goalCell, diagonalMovement) => {
     let initialGrid = []
     for (let r = 0; r < 20; r++) {
         const row = []
@@ -42,14 +38,16 @@ export const initializeGrid = (startCell, goalCell) => {
     initialGrid[goalRow][goalCol].weight = 1
     initialGrid[goalRow][goalCol].weightType = UNWEIGHTED
 
-    updateNeighbors(initialGrid);
+    updateAllNeighbors(initialGrid, diagonalMovement);
     return initialGrid
 }
-export const updateNeighbors = (grid) => {
-    const directions = [RIGHT, UP, DOWN, LEFT];
-
-    // const directions = [RIGHT, UP, LEFT, DOWN, DOWN_RIGHT, UP_RIGHT, DOWN_LEFT, UP_LEFT];
-
+export const updateAllNeighbors = (grid, diagonalMovement) => {
+    let directions;
+    if(diagonalMovement) {
+        directions = [RIGHT, UP, LEFT, DOWN, DOWN_RIGHT, UP_RIGHT, DOWN_LEFT, UP_LEFT];
+    } else {
+        directions = [RIGHT, UP, DOWN, LEFT];
+    }
     for (let r = 0; r < grid.length; r++) {
         for (let c = 0; c < grid[0].length; c++) {
             const cell = grid[r][c]
@@ -84,9 +82,8 @@ export const getRowColFromTable = (event) => {
 export const updateCellType = (currentCellType, newCellType, currentWeightValue) => {
     let weightType = ""
     let weightValue = 1
-    // console.log(currentCellType, newCellType, currentWeightValue)
     if (newCellType === "Wall") {
-        weightType = currentCellType !== "Wall" ? "Wall" : UNWEIGHTED;
+        weightType = currentCellType !== "Wall"  ? "Wall" : UNWEIGHTED;
         weightValue = currentWeightValue !== Infinity ? Infinity : 1;
     } else if (newCellType === SAND) {
         weightType = currentCellType !== SAND ? SAND : UNWEIGHTED;
@@ -116,3 +113,12 @@ export const serializeArray = (arr) => {
     return JSON.stringify(arr);
 }
 
+export const setAnimationSpeed = (speedType) => {
+    if(speedType === "Fast") {
+        return 20
+    } else if(speedType === "Medium") {
+        return 70
+    } else {
+        return 300
+    } 
+}

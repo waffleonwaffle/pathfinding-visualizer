@@ -12,14 +12,14 @@ const WeightPickerHub = ({ onCellTypeChange }) => {
                 <Button className="config-hub-elements">Configure Cell Types</Button>
             </Menu.Target>
             <Menu.Dropdown>
-                <Menu.Item onClick={handleChangeCellType} data-selected-cell-type="Sand" style={{ color: '#F4A460', fontWeight: 'bold' }}>
+                <Menu.Item onClick={handleChangeCellType} data-selected-cell-type="Sand" style={{ color: '#D2B48C', fontWeight: 'bold' }}>
                     Sand-5
                 </Menu.Item>
-                <Menu.Item onClick={handleChangeCellType} data-selected-cell-type="Water" style={{ color: 'rgba(0, 191, 255, 0.5)', fontWeight: 'bold' }}>
+                <Menu.Item onClick={handleChangeCellType} data-selected-cell-type="Water" style={{ color: '#000080', fontWeight: 'bold' }}>
                     Water-10
                 </Menu.Item>
-                <Menu.Item onClick={handleChangeCellType} data-selected-cell-type="Mud" style={{ color: '#8B4513', fontWeight: 'bold' }}>
-                    Mud-50
+                <Menu.Item onClick={handleChangeCellType} data-selected-cell-type="Forest" style={{ color: '#006400', fontWeight: 'bold' }}>
+                    Forest-50
                 </Menu.Item>
                 <Menu.Item onClick={handleChangeCellType} data-selected-cell-type="Wall" style={{ color: '#343A40', fontWeight: 'bold' }}>
                     Wall-∞

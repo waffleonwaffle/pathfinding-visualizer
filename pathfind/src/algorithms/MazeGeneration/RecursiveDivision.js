@@ -7,40 +7,40 @@ const RecursiveDivisionAlgo = (grid, r, c, width, height, orientation) => {
     }
 
     const horizontal = orientation === HORIZONTAL;
-    let wc = c + (horizontal ? 0 : Math.floor(Math.random() * (width - 2)));
-    let wr = r + (horizontal ? Math.floor(Math.random() * (height - 2)) : 0);
-    let pc = wc + (horizontal ? Math.floor(Math.random() * width) : 0);
-    let pr = wr + (horizontal ? 0 : Math.floor(Math.random() * height));
-    wc = wc - (wc % 2 === 0 ? 0 : 1);
-    wr = wr - (wr % 2 === 0 ? 0 : 1);
-    pc = Math.max(pc - (pc % 2 !== 0 ? 0 : 1), 1);
-    pr = Math.max(pr - (pr % 2 !== 0 ? 0 : 1), 1);
+    let wallStartColumn = c + (horizontal ? 0 : Math.floor(Math.random() * (width - 2)));
+    let wallStartRow = r + (horizontal ? Math.floor(Math.random() * (height - 2)) : 0);
+    let passageStartColumn = wallStartColumn + (horizontal ? Math.floor(Math.random() * width) : 0);
+    let passageStartRow = wallStartRow + (horizontal ? 0 : Math.floor(Math.random() * height));
+    wallStartColumn = wallStartColumn - (wallStartColumn % 2 === 0 ? 0 : 1);
+    wallStartRow = wallStartRow - (wallStartRow % 2 === 0 ? 0 : 1);
+    passageStartColumn = Math.max(passageStartColumn - (passageStartColumn % 2 !== 0 ? 0 : 1), 1);
+    passageStartRow = Math.max(passageStartRow - (passageStartRow % 2 !== 0 ? 0 : 1), 1);
     if (horizontal) {
-        for (let col = wc; col < wc + width; col++) {
-            if (col === pc || grid[wr][col].isStart || grid[wr][col].isGoal) {
+        for (let col = wallStartColumn; col < wallStartColumn + width; col++) {
+            if (col === passageStartColumn || grid[wallStartRow][col].isStart || grid[wallStartRow][col].isGoal) {
                 continue;
             }
-            grid[wr][col] = { ...grid[wr][col], weightType: "Wall", weight: Infinity };
+            grid[wallStartRow][col] = { ...grid[wallStartRow][col], weightType: "Wall", weight: Infinity };
         }
-        if (wr !== 0) {
-            grid[wr][pc] = { ...grid[wr][pc], weightType: "Unweighted", weight: 1 };
+        if (wallStartRow !== 0) {
+            grid[wallStartRow][passageStartColumn] = { ...grid[wallStartRow][passageStartColumn], weightType: "Unweighted", weight: 1 };
         }
-        RecursiveDivisionAlgo(grid, r, c, width, wr - r + 1, chooseOrientation(width, wr - r + 1));
-        RecursiveDivisionAlgo(grid, wr + 1, c, width, r + height - wr - 1, chooseOrientation(width, r + height - wr - 1));
+        RecursiveDivisionAlgo(grid, r, c, width, wallStartRow - r + 1, chooseOrientation(width, wallStartRow - r + 1));
+        RecursiveDivisionAlgo(grid, wallStartRow + 1, c, width, r + height - wallStartRow - 1, chooseOrientation(width, r + height - wallStartRow - 1));
     } else {
-        for (let row = wr; row < wr + height; row++) {
-            if (row === pr || grid[row][wc].isStart || grid[row][wc].isGoal) {
+        for (let row = wallStartRow; row < wallStartRow + height; row++) {
+            if (row === passageStartRow || grid[row][wallStartColumn].isStart || grid[row][wallStartColumn].isGoal) {
                 continue;
             }
-            grid[row][wc] = { ...grid[row][wc], weightType: "Wall", weight: Infinity };
+            grid[row][wallStartColumn] = { ...grid[row][wallStartColumn], weightType: "Wall", weight: Infinity };
         }
 
-        if (wc !== 0) {
-            grid[pr][wc] = { ...grid[pr][wc], weightType: "Unweighted", weight: 1 };
+        if (wallStartColumn !== 0) {
+            grid[passageStartRow][wallStartColumn] = { ...grid[passageStartRow][wallStartColumn], weightType: "Unweighted", weight: 1 };
         }
 
-        RecursiveDivisionAlgo(grid, r, c, wc - c + 1, height, chooseOrientation(wc - c + 1, height));
-        RecursiveDivisionAlgo(grid, r, wc + 1, c + width - wc - 1, height, chooseOrientation(c + width - wc - 1, height));
+        RecursiveDivisionAlgo(grid, r, c, wallStartColumn - c + 1, height, chooseOrientation(wallStartColumn - c + 1, height));
+        RecursiveDivisionAlgo(grid, r, wallStartColumn + 1, c + width - wallStartColumn - 1, height, chooseOrientation(c + width - wallStartColumn - 1, height));
     }
     return grid;
 };

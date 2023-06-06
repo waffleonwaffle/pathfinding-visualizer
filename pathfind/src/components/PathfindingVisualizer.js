@@ -1,12 +1,21 @@
 import Grid from "./Grid"
-import Header from "./HeaderComponents/Header"
-import { useState } from "react"
+import AlgorithmConfigHub from "./HeaderComponents/AlgorithmConfigHub";
+import SettingsHub from "./HeaderComponents/SettingsHub";
+import WeightPickerHub from "./HeaderComponents/WeightPickerHub";
+import GridTypesHub from "./HeaderComponents/GridTypesHub";
+import { Button } from "@mantine/core";
+import { useState, createContext } from "react"
+export const MyContext = createContext();
 const PathfindingVisualizer = () => {
-    const [algorithm, setAlgorithm] = useState("")
-    const [gridType, setGridType] = useState("")
+    const [selectedAlgorithm, setAlgorithm] = useState("")
+    const [selectedGridType, setGridType] = useState("")
+    const [selectedHeuristic, setHeuristic] = useState("Manhattan")
+    const [selectedCellType, setCellType] = useState("Wall")
+    const [selectedSpeedType, setSpeedType] = useState("Fast")
+    const [diagonalMovement, setDiagonalMovement] = useState(false)
+
     const [clearedGrid, setClearedGrid] = useState(false)
     const [clearObstacles, setClearObstacles] = useState(false)
-    const [selectedCellType, setCellTypee] = useState("Wall")
     const handleAlgorithmChange = (algo) => {
         setAlgorithm(algo)
     }
@@ -14,31 +23,49 @@ const PathfindingVisualizer = () => {
         setGridType(gridType)
     }
     const handleCellChange = (cellType) => {
-        setCellTypee(cellType)
+        setCellType(cellType)
     }
 
+    const handleHeuristicChange = (heuristic) => {
+        setHeuristic(heuristic)
+    }
+
+    const handleSpeedChange = (speedType) => {
+        setSpeedType(speedType)
+    }
     return (
         <div>
-            <Header
-                handleAlgorithmChange={handleAlgorithmChange}
-                handleGridTypeChange={handleGridTypeChange}
-                handleClearGrid={() => setClearedGrid(true)}
-                handleClearObstacles={() => setClearObstacles(true)}
-                handleCellChange={handleCellChange}
-            ></Header>
-            <Grid 
-                selectedAlgorithm={algorithm}
+            <div className="config-hub">
+                <AlgorithmConfigHub onAlgorithmChange={handleAlgorithmChange}></AlgorithmConfigHub>
+                <GridTypesHub onGridTypeChange={handleGridTypeChange}></GridTypesHub>
+                <Button className="config-hub-elements" onClick={() => setClearedGrid(true)}>Clear Board</Button>
+                <Button className="config-hub-elements" onClick={() => setClearObstacles(true)}>Clear Obstacles</Button>
+                <WeightPickerHub onCellTypeChange={handleCellChange} className="config-hub-elements">Weight Picker</WeightPickerHub>
+                <SettingsHub
+                    selectedHeuristic={selectedHeuristic}
+                    diagonalMovement={diagonalMovement}
+                    selectedSpeedType = {selectedSpeedType}
+                    onHeuristicChange={handleHeuristicChange}
+                    onMovementChange={() => setDiagonalMovement(!diagonalMovement)}
+                    onSpeedChange={handleSpeedChange}>
+                </SettingsHub>
+            </div>
+
+            <Grid
+                selectedAlgorithm={selectedAlgorithm}
                 selectedCellType={selectedCellType}
-                selectedGridType={gridType}
+                selectedGridType={selectedGridType}
+                selectedHeuristic={selectedHeuristic}
+                selectedSpeedType={selectedSpeedType}
                 clearedGrid={clearedGrid}
                 clearObstacles={clearObstacles}
-                resetGridType ={() => setGridType("")}
+                diagonalMovement={diagonalMovement}
+                resetGridType={() => setGridType("")}
                 resetSelectedAlgorithm={() => setAlgorithm("")}
                 resetClearedGrid={() => setClearedGrid(false)}
                 resetClearedObstacles={() => setClearObstacles(false)}
             ></Grid>
-        </div>
-
+        </div >
 
 
     )

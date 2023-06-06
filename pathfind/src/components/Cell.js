@@ -1,4 +1,4 @@
-const Cell = ({ cell}) => {
+const Cell = ({ cell }) => {
     const cellType = (cell) => {
         let className = ""
         if (cell.clickedAnimation) {
@@ -9,7 +9,10 @@ const Cell = ({ cell}) => {
             className = "waypoints"
         } else if (cell.partOfPath) {
             className = "path-cell"
-        } else if (cell.weightType !== "Unweighted" && !cell.searched) {
+        } else if (cell.searched) {
+            className = "searched-cell"        
+        } 
+        else if (cell.weight !== "Unweighted") {
             switch (cell.weightType) {
                 case "Wall":
                     className = "wall-cell"
@@ -26,9 +29,8 @@ const Cell = ({ cell}) => {
                 default:
                     break
             }
-        } else if (cell.searched) {
-            className = "searched-cell"
-        } else {
+        } 
+        else {
             className = "grid-cell"
         }
         return className

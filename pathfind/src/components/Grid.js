@@ -10,11 +10,22 @@ import GreedyBestFirstAlgo from "../algorithms/GreedyBestFirstSearch";
 import BFSAlgo from "../algorithms/BreadthFirstSearch";
 import RecursiveDivisionAlgo from "../algorithms/MazeGeneration/RecursiveDivision";
 import RandomWeightMaze from "../algorithms/MazeGeneration/RandomWeightMaze";
-import { reconstructPath, getRowColFromTable, initializeGrid, updateNeighbors, updateCellType } from "./helpers/gridHelperFunctions";
+import { reconstructPath, getRowColFromTable, initializeGrid, updateAllNeighbors, updateCellType, setAnimationSpeed } from "./helpers/gridHelperFunctions";
 
-const Grid = ({ selectedAlgorithm, resetSelectedAlgorithm,
-    selectedGridType, resetGridType, clearedGrid, resetClearedGrid,
-    clearObstacles, resetClearedObstacles, selectedCellType }) => {
+const Grid = ({
+    selectedAlgorithm,
+    selectedGridType,
+    selectedCellType,
+    selectedHeuristic,
+    diagonalMovement,
+    selectedSpeedType,
+    resetSelectedAlgorithm,
+    resetGridType,
+    clearedGrid,
+    resetClearedGrid,
+    clearObstacles,
+    resetClearedObstacles
+}) => {
     const START_CELL_COORDS = [10, 15];
     const GOAL_CELL_COORDS = [10, 35];
     const [startCell, setStartCell] = useState(START_CELL_COORDS)
@@ -27,13 +38,13 @@ const Grid = ({ selectedAlgorithm, resetSelectedAlgorithm,
     let throttledMoveWaypoints = null;
 
     useEffect(() => {
-        setGrid(initializeGrid(startCell, goalCell));
+        setGrid(initializeGrid(startCell, goalCell, diagonalMovement));
     }, [])
     useEffect(() => {
         if (selectedAlgorithm === "Dijkstra's Algorithm") {
             updateGrid(DijkstraAlgo)
         } else if (selectedAlgorithm === "A* Search") {
-            updateGrid(AStarAlgo)
+            updateGrid(AStarAlgo, selectedHeuristic)
         } else if (selectedAlgorithm === "Greedy best-first Search") {
             updateGrid(GreedyBestFirstAlgo)
         } else if (selectedAlgorithm === "Depth-first Search") {
@@ -42,7 +53,6 @@ const Grid = ({ selectedAlgorithm, resetSelectedAlgorithm,
             updateGrid(BFSAlgo)
         }
     }, [startCell, goalCell])
-
 
     useEffect(() => {
         if (pathRunning) {
@@ -59,7 +69,6 @@ const Grid = ({ selectedAlgorithm, resetSelectedAlgorithm,
         } else if (clearObstacles) {
             setGrid(prevGrid => {
                 const newGrid = prevGrid.map((row) => row.map((cell) => ({ ...cell, weightType: "Unweighted", weight: 1 })))
-                updateNeighbors(newGrid);
                 resetClearedObstacles()
                 return newGrid;
             });
@@ -72,22 +81,24 @@ const Grid = ({ selectedAlgorithm, resetSelectedAlgorithm,
                     return { ...cell, partOfPath: false, searched: false, weightType: "Unweighted", weight: 1 }
                 }))
                 const newGrid = RecursiveDivisionAlgo(prevGrid, 0, 0, prevGrid[0].length - 1, prevGrid.length - 1, "VERTICAL")
-                updateNeighbors(newGrid)
                 resetGridType()
                 return newGrid
             })
 
         } else if (selectedGridType === "Random Weighted Grid") {
             setGrid(prevGrid => {
-                prevGrid = prevGrid.map((row) => row.map((cell) => ({ ...cell, searched: false, partOfPath: false})))
+                prevGrid = prevGrid.map((row) => row.map((cell) => ({ ...cell, searched: false, partOfPath: false })))
                 RandomWeightMaze(prevGrid)
-                updateNeighbors(prevGrid)
                 resetGridType()
                 return prevGrid
             })
         }
+        setGrid(prevGrid => {
+            updateAllNeighbors(prevGrid, diagonalMovement)
+            return prevGrid
+        });
 
-    }, [clearedGrid, clearObstacles, selectedGridType])
+    }, [clearedGrid, clearObstacles, selectedGridType, diagonalMovement])
 
     const changeCellType = (row, col) => {
         setGrid(prevGrid => {
@@ -102,18 +113,21 @@ const Grid = ({ selectedAlgorithm, resetSelectedAlgorithm,
             if (clickedCell.partOfPath) {
                 clickedCell.partOfPath = false
             }
+            if (clickedCell.searched) {
+                clickedCell.searched = false
+            }
             clickedCell.weightType = updatedWeightType
             clickedCell.weight = updatedWeightValue
             newGrid[row][col] = clickedCell;
-            updateNeighbors(newGrid);
+            updateAllNeighbors(newGrid, diagonalMovement);
             return newGrid;
         });
         setPreviousCoordinates([row, col]);
     }
 
-    const animateSearchingCells = (algo) => {
+    const animateSearchingCells = (algo, selectedHeuristic = "") => {
         setPathRunning(true);
-        const [cameFrom, searchedCells] = algo(startCell, goalCell, grid);
+        const [cameFrom, searchedCells] = algo(startCell, goalCell, grid, selectedHeuristic);
         let currentIndex = 1;
         const newGrid = grid.map((row) => row.map((cell) => { return { ...cell, searched: false, partOfPath: false } }))
         const searchingCellsInterval = setInterval(() => {
@@ -127,7 +141,7 @@ const Grid = ({ selectedAlgorithm, resetSelectedAlgorithm,
             newGrid[searchedCell[0]][searchedCell[1]].searched = true;
             setGrid([...newGrid]);
             currentIndex++;
-        }, 10);
+        }, setAnimationSpeed(selectedSpeedType));
     };
 
     const updateVisualization = (cameFrom) => {
@@ -136,6 +150,7 @@ const Grid = ({ selectedAlgorithm, resetSelectedAlgorithm,
             setPathRunning(false);
             return
         }
+        
         setGrid((prevGrid) => {
             const newGrid = prevGrid.map((row) =>
                 row.map((cell) => ({ ...cell, partOfPath: false }))
@@ -159,13 +174,13 @@ const Grid = ({ selectedAlgorithm, resetSelectedAlgorithm,
 
                 setGrid([...newGrid]);
                 index++
-            }, 10)
+            }, setAnimationSpeed(selectedSpeedType))
             return newGrid
         });
 
     };
     const updateGrid = (algo) => {
-        const [cameFrom, searchedCells] = algo(startCell, goalCell, grid);
+        const [cameFrom, searchedCells] = algo(startCell, goalCell, grid, selectedHeuristic);
         const newGrid = grid.map((row) => row.map((cell) => ({ ...cell, searched: false, partOfPath: false })));
         const path = reconstructPath(goalCell, cameFrom)
         if (!path) {
@@ -226,7 +241,7 @@ const Grid = ({ selectedAlgorithm, resetSelectedAlgorithm,
             newGrid[oldStartRow][oldStartCol].isStart = false;
             newGrid[row][col].isStart = true;
             setStartCell([row, col]);
-            updateNeighbors(newGrid)
+            updateAllNeighbors(newGrid, diagonalMovement)
             setGrid(newGrid);
         }
         else if (clickedWaypoint[1]) {
@@ -237,7 +252,7 @@ const Grid = ({ selectedAlgorithm, resetSelectedAlgorithm,
             newGrid[oldGoalRow][oldGoalCol].isGoal = false;
             newGrid[row][col].isGoal = true;
             setGoalCell([row, col]);
-            updateNeighbors(newGrid)
+            updateAllNeighbors(newGrid, diagonalMovement)
             setGrid(newGrid);
         }
     };
@@ -271,7 +286,7 @@ const Grid = ({ selectedAlgorithm, resetSelectedAlgorithm,
         if (selectedAlgorithm === "Dijkstra's Algorithm") {
             animateSearchingCells(DijkstraAlgo)
         } else if (selectedAlgorithm === "A* Search") {
-            animateSearchingCells(AStarAlgo)
+            animateSearchingCells(AStarAlgo, selectedHeuristic)
         } else if (selectedAlgorithm === "Greedy best-first Search") {
             animateSearchingCells(GreedyBestFirstAlgo)
         } else if (selectedAlgorithm === "Depth-first Search") {
@@ -288,7 +303,7 @@ const Grid = ({ selectedAlgorithm, resetSelectedAlgorithm,
             <div className="visualizer-button-container">
                 <Button className="visualizer-button"
                     onClick={handleStartVisualization}>
-                    {selectedAlgorithm ? selectedAlgorithm : "Visualize Algorithm"}
+                    Run {selectedAlgorithm ? selectedAlgorithm : "Visualize Algorithm"}
                 </Button>
             </div>
 
