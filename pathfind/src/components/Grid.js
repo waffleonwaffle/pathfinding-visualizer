@@ -55,7 +55,6 @@ const Grid = ({
         if (selectedAlgorithm === "Dijkstra's Algorithm") {
             updateGrid(DijkstraAlgo)
         } else if (selectedAlgorithm === "A* Search") {
-            console.log('hi')
             updateGrid(AStarAlgo)
         } else if (selectedAlgorithm === "Greedy best-first Search") {
             updateGrid(GreedyBestFirstAlgo)
@@ -304,7 +303,6 @@ const Grid = ({
         if (pathRunning) {
             return
         }
-        // const heuristicObject = { heuristic: selectedHeuristic, heuristicWeight: selectedHeuristicWeight }
         if (selectedAlgorithm === "Dijkstra's Algorithm") {
             animateSearchingCells(DijkstraAlgo)
         } else if (selectedAlgorithm === "A* Search") {

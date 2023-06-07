@@ -2,6 +2,16 @@ header {
     font-family: 'Montserrat';
 }
 
+td {
+    border: 1px solid black;
+    width: 2.0rem;
+    height: 2.0rem;
+    font-size: 10px;
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+}
 
 .config-hub {
     display: flex;
@@ -15,7 +25,8 @@ header {
     background-color: #CCCCFF;
     color: black;
     overflow-x: auto;
-    font-weight: 800;
+    font-weight: bold;
+    --hover-color: #D8B4FF;
 }
 
 .config-hub-elements:hover {
@@ -25,27 +36,22 @@ header {
 .visualizer-button-container {
     display: flex;
     justify-content: center;
+
 }
 
 .visualizer-button-container button {
     background-color: #E69A8DFF;
     color: black;
     font-weight: 800;
+    --hover-color: rgba(230, 154, 141, 0.8);
 }
 
-.visualizer-button-container button:hover {
-    background-color: rgba(230, 154, 141, 0.8);
-}
+.visualizer-button-container button:hover,
+.config-hub-elements:hover,
+.clipboard-button:hover {
+    font-weight: bold;
+    background-color: var(--hover-color);
 
-td {
-    border: 1px solid black;
-    width: 2.0rem;
-    height: 2.0rem;
-    font-size: 10px;
-    user-select: none;
-    -moz-user-select: none;
-    -webkit-user-select: none;
-    -ms-user-select: none;
 }
 
 .grid-container {
@@ -61,7 +67,6 @@ td {
 }
 
 .wall-cell {
-
     background-color: #343A40;
 }
 
@@ -93,11 +98,13 @@ td {
     color: var(--hover-color);
 }
 
-
 .animate-weight-cell {
     color: transparent;
     background-color: #343A40;
     transform: scale(1.2);
+    animation-duration: 1.5s;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
 }
 
 
@@ -126,6 +133,45 @@ td {
     background-color: gold;
 }
 
+.settings {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.heuristic-grid,
+.movement-grid,
+.speed-grid,
+.heuristic-weight-grid {
+    padding: 5px;
+}
+
+.heuristic-button,
+.speed-button,
+.weight-slider {
+    display: flex;
+    flex-direction: row;
+    padding: 2px;
+}
+
+.grid-clipboard {
+    display: flex;
+    justify-content: space-evenly;
+    flex-direction: column;
+    height: 5rem;
+    align-items: center;
+}
+
+.clipboard-button {
+    height: 2rem;
+    width: 8rem;
+    border-radius: 2px;
+    font-size: small;
+    color: black;
+    background-color: peachpuff;
+    --hover-color: rgba(255, 218, 185, 0.8);
+}
+
+
 @keyframes rotate {
     0% {
         transform: rotate(0deg);
@@ -136,27 +182,11 @@ td {
     }
 }
 
-.settings {
-    display: flex;
-    flex-wrap: wrap;
-}
-
-.heuristic-picker,
-.movement-picker,
-.speed-picker {
-    padding: 5px;
-}
-.heuristic-button, .speed-button, .weight-slider{
-    display: flex;
-    flex-direction: row;
-    padding: 2px;
-}
-
 .settings-icon {
     animation: rotate 2s linear infinite;
 }
 
-.algorithm-stats{
+.algorithm-stats {
     display: flex;
     flex-direction: column;
     flex-wrap: wrap;
@@ -165,7 +195,6 @@ td {
     height: 5rem;
     padding-left: 4px;
 }
-
 
 
 @media screen and (max-width: 1500px) {
@@ -222,13 +251,12 @@ td {
     }
 
     .config-hub {
-        height: 8rem;
+        height: 8rem
     }
 
     td {
         width: 0.9rem;
         height: 0.9rem;
-        border-radius: 0px;
         font-size: 5px;
     }
 

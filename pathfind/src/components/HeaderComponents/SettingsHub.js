@@ -33,7 +33,7 @@ const SettingsHub = ({
             </Menu.Target>
 
             <Menu.Dropdown className="settings">
-                <section className="heuristic-picker">
+                <section className="heuristic-grid">
                     <span style={{ fontWeight: 'bold' }}>Heuristic: </span>
                     <Radio.Group defaultValue={selectedHeuristic}>
                         <HeuristicOption heuristicLink={"https://xlinux.nist.gov/dads/HTML/manhattanDistance.html"} handleHeuristicChange={handleHeuristicChange} heuristicName={"Manhattan"}></HeuristicOption>
@@ -43,25 +43,25 @@ const SettingsHub = ({
                     </Radio.Group>
 
                 </section>
-                <section>
+                <section className='heuristic-weight-grid'>
                     <span style={{ fontWeight: 'bold' }}>Heuristic Weight:</span>
-                    <Slider color="cyan" className='weight-slider' defaultValue={selectedHeuristicWeight} onChange={onHeuristicWeightChange} min={0} max={10} step={0.001} value={selectedHeuristicWeight.toFixed(3)} ></Slider>
+                    <Slider color="dark" className='weight-slider' defaultValue={selectedHeuristicWeight} onChange={onHeuristicWeightChange} min={0} max={10} step={0.001} value={selectedHeuristicWeight.toFixed(3)} ></Slider>
                 </section>
-                <section className="movement-picker">
+                <section className="movement-grid">
                     <Checkbox checked={diagonalMovement} onChange={onMovementChange} label="8-Directional Movement" />
                 </section>
 
-                <section className="speed-picker">
+                <section className="speed-grid">
                     <span style={{ fontWeight: 'bold' }}>Animation Speed (s):</span>
                     <Radio.Group defaultValue={selectedSpeedType}>
-                        <Radio color="cyan" className='speed-button' onClick={handleSpeedChange} value="Fast" label="Fast" />
-                        <Radio color="cyan" className='speed-button' onClick={handleSpeedChange} value="Medium" label="Medium" />
+                        <Radio color="dark" className='speed-button' onClick={handleSpeedChange} value="Fast" label="Fast" />
+                        <Radio color="dark" className='speed-button' onClick={handleSpeedChange} value="Medium" label="Medium" />
                         <Radio color="cyan" className='speed-button' onClick={handleSpeedChange} value="Slow" label="Slow" />
                     </Radio.Group>
                 </section>
-                <section>
-                    <Button onClick={onCopyGrid}>Copy</Button>
-                    <Button onClick={onPasteGrid}>Paste</Button>
+                <section className='grid-clipboard'>
+                    <Button className='clipboard-button' onClick={onCopyGrid}>Copy Grid</Button>
+                    <Button className='clipboard-button' onClick={onPasteGrid}>Paste Grid</Button>
                 </section>
             </Menu.Dropdown>
         </Menu>

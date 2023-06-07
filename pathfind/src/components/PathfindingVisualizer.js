@@ -5,8 +5,8 @@ import WeightPickerHub from "./HeaderComponents/WeightPickerHub";
 import GridTypesHub from "./HeaderComponents/GridTypesHub";
 import { Button } from "@mantine/core";
 import { useState, useRef, useReducer } from "react"
-import { updateNeighbors } from "./helpers/gridHelperFunctions";
-// import { reducer, initialState} from "../reducers";
+import { setAnimationSpeed, updateNeighbors } from "./helpers/gridHelperFunctions";
+import { reducer, initialState} from "../reducers";
 const INITIAL_HEAURISTIC = "Manhattan"
 const INITIAL_CELLTYPE = "Wall"
 const INITIAL_SPEEDTYPE = "Fast"
@@ -14,7 +14,9 @@ const INITIAL_HEAURISTIC_WEIGHT = 1.001
 const START_CELL_COORDS = [1, 1];
 const GOAL_CELL_COORDS = [15, 35];
 const PathfindingVisualizer = () => {
-
+    const [state, dispatch] = useReducer(reducer, initialState);
+    // const { clearedGrid } = state;
+    
     const [grid, setGrid] = useState([]);
     const [selectedAlgorithm, setAlgorithm] = useState("")
     const [selectedGridType, setGridType] = useState("")
@@ -49,17 +51,21 @@ const PathfindingVisualizer = () => {
 
 
     const handleCopyGrid = async () => {
-        let formattedString = grid.map(row => row.map(cell => JSON.stringify(cell)).join('\t')).join('\n');
-        formattedString = selectedAlgorithm + "}" + formattedString
-        await navigator.clipboard.writeText(formattedString)
+        let inputtedGrid = grid.map(row => row.map(cell => JSON.stringify(cell)).join('\t')).join('\n');
+        const formattedBoardSettings = selectedAlgorithm + "}" +
+            selectedHeuristic + "}" + 
+            diagonalMovement + "}" + 
+            selectedHeuristicWeight + "}" +
+            selectedSpeedType + "}" + 
+            inputtedGrid
+        await navigator.clipboard.writeText(formattedBoardSettings)
     }
 
     const handlePasteGrid = async () => {
         const text = await navigator.clipboard.readText()
         try {
-
             const objectStrings = text.split('}');
-            const validObjectStrings = objectStrings.slice(1).filter(Boolean).map(objectString => objectString.trim() + '}');
+            const validObjectStrings = objectStrings.slice(5).filter(Boolean).map(objectString => objectString.trim() + '}');
             const objects = validObjectStrings.map(objectString => JSON.parse(objectString));
             const formattedArray = [];
             let row = []
@@ -67,12 +73,10 @@ const PathfindingVisualizer = () => {
                 const cell = objects[i]
                 cell.weight = cell.weight === null ? Infinity : cell.weight
                 row.push(objects[i])
-
-                if(cell.isStart) {
+                if (cell.isStart) {
                     setStartCell(cell.coords)
-                } else if(cell.isGoal){
+                } else if (cell.isGoal) {
                     setGoalCell(cell.coords)
-
                 }
                 if ((i + 1) % 50 === 0) {
                     formattedArray.push(row)
@@ -82,6 +86,11 @@ const PathfindingVisualizer = () => {
             updateNeighbors(formattedArray, diagonalMovement)
             setGrid(formattedArray)
             setAlgorithm(objectStrings[0])
+            setHeuristic(objectStrings[1])
+            setDiagonalMovement(objectStrings[2] === "true")
+            setHeuristicWeight(parseFloat(selectedHeuristicWeight[3]))
+            setAnimationSpeed(selectedSpeedType[4])
+
 
 
         } catch (error) {
