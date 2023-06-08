@@ -1,9 +1,11 @@
 import { Menu, Button } from '@mantine/core';
-
+import { useDispatch } from 'react-redux';
+import { setCellType } from '../../reducers/pathfindingReducer';
 const WeightPickerHub = ({ onCellTypeChange }) => {
+    const dispatch = useDispatch()
     const handleChangeCellType = (event) => {
         const { selectedCellType } = event.currentTarget.dataset;
-        onCellTypeChange(selectedCellType);
+        dispatch(setCellType(selectedCellType));
     };
 
     return (

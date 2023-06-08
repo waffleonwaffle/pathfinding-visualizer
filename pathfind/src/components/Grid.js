@@ -1,8 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState, useRef } from "react";
 import { Button } from '@mantine/core';
-import AlgoStats from "./AlgoStats";
+import { useDispatch, useSelector } from 'react-redux';
+import { setStartCell, setGoalCell } from '../reducers/gridReducer';
 import uniqid from 'uniqid'
+import AlgoStats from "./AlgoStats";
 import Cell from "./Cell";
 import DijkstraAlgo from "../algorithms/Dijkstra";
 import AStarAlgo from "../algorithms/AStar";
@@ -11,43 +13,47 @@ import GreedyBestFirstAlgo from "../algorithms/GreedyBestFirstSearch";
 import BFSAlgo from "../algorithms/BreadthFirstSearch";
 import RecursiveDivisionAlgo from "../algorithms/MazeGeneration/RecursiveDivision";
 import RandomWeightMaze from "../algorithms/MazeGeneration/RandomWeightMaze";
-import { reconstructPath, getRowColFromTable, initializeGrid, updateNeighbors, updateCellType, setAnimationSpeed } from "./helpers/gridHelperFunctions";
 import IDAStarAlgo from "../algorithms/IDA*";
-
+import { reconstructPath, getRowColFromTable, initializeGrid, updateNeighbors, updateCellType, setAnimationSpeed } from "./helpers/gridHelperFunctions";
+import CopyPaste from "./CopyPaste";
+const START_CELL_COORDS = [1, 1];
+const GOAL_CELL_COORDS = [15, 35];
 const Grid = ({
-    grid,
-    setGrid,
-    startCell, 
-    goalCell,
-    setStartCell, 
-    setGoalCell,
-    selectedAlgorithm,
-    selectedGridType,
-    selectedCellType,
-    selectedHeuristic,
-    diagonalMovement,
-    selectedSpeedType,
-    selectedHeuristicWeight,
-    resetSelectedAlgorithm,
-    resetGridType,
-    clearedGrid,
-    resetClearedGrid,
-    clearObstacles,
-    resetClearedObstacles, 
-}) => {
-    const START_CELL_COORDS = [1, 1];
-    const GOAL_CELL_COORDS = [15, 35];
-    // const [startCell, setStartCell] = useState(START_CELL_COORDS)
-    // const [goalCell, setGoalCell] = useState(GOAL_CELL_COORDS)
+    resetSelectedAlgorithm, resetGridType, resetClearedGrid, resetClearedObstacles, resetClearedPath }) => {
+    const [grid, setGrid] = useState([]);
+    const startCell = useSelector((state) => state.grid.startCell);
+    const goalCell = useSelector((state) => state.grid.goalCell);
+    const selectedAlgorithm = useSelector((state) => state.pathfind.selectedAlgorithm);
+    const selectedGridType = useSelector((state) => state.pathfind.selectedGridType);
+    const selectedCellType = useSelector((state) => state.pathfind.selectedCellType);
+    const clearedGrid = useSelector((state) => state.pathfind.clearedGrid);
+    const clearObstacles = useSelector((state) => state.pathfind.clearObstacles);
+    const clearPath = useSelector((state) => state.pathfind.clearPath);
+
+    const selectedHeuristic = useSelector((state) => state.settings.selectedHeuristic)
+    const selectedSpeedType = useSelector((state) => state.settings.selectedSpeedType)
+    const selectedHeuristicWeight = useSelector((state) => state.settings.selectedHeuristicWeight)
+    const diagonalMovement = useSelector((state) => state.settings.diagonalMovement)
     const [clickedWaypoint, setClickedWaypoint] = useState([false, false]);
     const [placingWalls, setPlacingWalls] = useState(false);
     const [previousCoordinates, setPreviousCoordinates] = useState([null, null]);
     const [pathRunning, setPathRunning] = useState(false);
     const heuristicObject = { heuristic: selectedHeuristic, heuristicWeight: selectedHeuristicWeight }
+    const dispatch = useDispatch()
+
     let throttledMoveWaypoints = null;
     let totalVisitedCells = useRef(null)
     let totalExecutionTime = useRef(null)
     let totalPathCost = useRef(0)
+
+    const updateStartCell = (newStartCell) => {
+        dispatch(setStartCell(newStartCell));
+    };
+
+    const updateGoalCell = (newGoalCell) => {
+        dispatch(setGoalCell(newGoalCell));
+    };
+
     useEffect(() => {
         setGrid(initializeGrid(startCell, goalCell, diagonalMovement));
     }, [])
@@ -75,14 +81,24 @@ const Grid = ({
             setGrid(initializeGrid(START_CELL_COORDS, GOAL_CELL_COORDS))
             resetSelectedAlgorithm()
             resetClearedGrid();
-            setStartCell(START_CELL_COORDS)
-            setGoalCell(GOAL_CELL_COORDS)
+            updateStartCell(START_CELL_COORDS)
+            updateGoalCell(GOAL_CELL_COORDS)
         } else if (clearObstacles) {
             setGrid(prevGrid => {
                 const newGrid = prevGrid.map((row) => row.map((cell) => ({ ...cell, weightType: "Unweighted", weight: 1 })))
-                resetClearedObstacles()
                 return newGrid;
             });
+            resetClearedObstacles()
+
+            
+        } else if (clearPath)  {
+            setGrid(prevGrid => {
+                const newGrid = prevGrid.map((row) => row.map((cell) => ({ ...cell, searched: false, partOfPath: false })))
+
+                return newGrid;
+            });
+            resetClearedPath()
+
         } else if (selectedGridType === "Random Grid") {
             setGrid(prevGrid => {
                 prevGrid = prevGrid.map((row, rowIndex) => row.map((cell, colIndex) => {
@@ -92,25 +108,26 @@ const Grid = ({
                     return { ...cell, partOfPath: false, searched: false, weightType: "Unweighted", weight: 1 }
                 }))
                 const newGrid = RecursiveDivisionAlgo(prevGrid, 0, 0, prevGrid[0].length - 1, prevGrid.length - 1, "VERTICAL")
-                resetGridType()
                 return newGrid
             })
+            resetGridType()
+
 
         } else if (selectedGridType === "Random Weighted Grid") {
             setGrid(prevGrid => {
                 prevGrid = prevGrid.map((row) => row.map((cell) => ({ ...cell, searched: false, partOfPath: false })))
                 RandomWeightMaze(prevGrid)
-                resetGridType()
                 return prevGrid
             })
+            resetGridType()
+
         }
         setGrid(prevGrid => {
             updateNeighbors(prevGrid, diagonalMovement)
             return prevGrid
         });
 
-    }, [clearedGrid, clearObstacles, selectedGridType, diagonalMovement])
-
+    }, [clearedGrid, clearObstacles, clearPath, selectedGridType, diagonalMovement])
     const changeCellType = (row, col) => {
         setGrid(prevGrid => {
             const newGrid = [...prevGrid];
@@ -257,7 +274,7 @@ const Grid = ({
             }
             newGrid[oldStartRow][oldStartCol].isStart = false;
             newGrid[row][col].isStart = true;
-            setStartCell([row, col]);
+            updateStartCell([row, col]);
             updateNeighbors(newGrid, diagonalMovement)
             setGrid(newGrid);
         }
@@ -268,7 +285,7 @@ const Grid = ({
             }
             newGrid[oldGoalRow][oldGoalCol].isGoal = false;
             newGrid[row][col].isGoal = true;
-            setGoalCell([row, col]);
+            updateGoalCell([row, col]);
             updateNeighbors(newGrid, diagonalMovement)
             setGrid(newGrid);
         }
@@ -306,7 +323,6 @@ const Grid = ({
         if (selectedAlgorithm === "Dijkstra's Algorithm") {
             animateSearchingCells(DijkstraAlgo)
         } else if (selectedAlgorithm === "A* Search") {
-            console.log(grid)
             animateSearchingCells(AStarAlgo, heuristicObject)
         } else if (selectedAlgorithm === "Greedy best-first Search") {
             animateSearchingCells(GreedyBestFirstAlgo, heuristicObject)
@@ -328,6 +344,16 @@ const Grid = ({
                     Run {selectedAlgorithm ? selectedAlgorithm : "Visualize Algorithm"}
                 </Button>
             </div>
+            <CopyPaste
+                grid={grid}
+                setGrid={setGrid}
+                selectedAlgorithm={selectedAlgorithm}
+                diagonalMovement={diagonalMovement}
+                selectedHeuristic={selectedHeuristic}
+                selectedHeuristicWeight={selectedHeuristicWeight}
+                selectedSpeedType={selectedSpeedType}
+                clearPath={clearPath}
+            ></CopyPaste>
             <div className="grid-container">
                 <AlgoStats
                     algorithm={selectedAlgorithm}

@@ -1,9 +1,11 @@
 import { Menu, Button } from '@mantine/core';
-
-const GridTypesHub = ({onGridTypeChange}) => {
+import { useDispatch } from 'react-redux';
+import { setGridType } from '../../reducers/pathfindingReducer';
+const GridTypesHub = () => {
+    const dispatch = useDispatch()
     const handleGridTypeChange = (event) => {
-        const selectedGridType = event.target.innerText;
-        onGridTypeChange(selectedGridType)
+        const gridType = event.target.innerText;
+        dispatch(setGridType(gridType))
     }
     return (
         <Menu shadow="lg" width={200}>

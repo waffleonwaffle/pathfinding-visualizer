@@ -1,6 +1,6 @@
 import PriorityQueue from "../components/helpers/PriorityQueue"
 import { serializeArray, findNeighbor } from "../components/helpers/gridHelperFunctions"
-import {calcHeuristicDistance} from './Heuristics'
+import { calcHeuristicDistance } from './Heuristics'
 const AStarAlgo = (grid, startNode, goalNode, heuristicInfo) => {
     let pQueue = new PriorityQueue()
     let cameFrom = { [serializeArray(startNode)]: null }

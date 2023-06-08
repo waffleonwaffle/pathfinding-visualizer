@@ -1,8 +1,11 @@
 import { Menu, Button } from '@mantine/core';
-const AlgorithmConfigHub = ({onAlgorithmChange}) => {
+import { useDispatch } from 'react-redux';
+import { setAlgorithm } from '../../reducers/pathfindingReducer';
+const AlgorithmConfigHub = () => {
+    const dispatch = useDispatch()
     const handleAlgorithmChange = (event) => {
-        const selectedAlgorithm = event.target.innerText;
-        onAlgorithmChange(selectedAlgorithm.trim())
+        const algorithm = event.target.innerText;
+        dispatch(setAlgorithm(algorithm))
     }
     return (
         <Menu shadow="lg" width={200}>

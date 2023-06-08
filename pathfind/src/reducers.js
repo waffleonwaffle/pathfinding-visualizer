@@ -22,33 +22,24 @@ export const initialState = {
 
 export const reducer = (state, action) => {
     switch (action.type) {
-        case 'SET_GRID':
-            return { ...state, grid: action.payload };
-        case 'SET_ALGORITHM':
-            return { ...state, selectedAlgorithm: action.payload };
-        case 'SET_GRID_TYPE':
-            return { ...state, selectedGridType: action.payload };
-        case 'SET_HEURISTIC':
-            return { ...state, selectedHeuristic: action.payload };
-        case 'SET_CELL_TYPE':
-            return { ...state, selectedCellType: action.payload };
-        case 'SET_SPEED_TYPE':
-            return { ...state, selectedSpeedType: action.payload };
-        case 'SET_DIAGONAL_MOVEMENT':
-            return { ...state, diagonalMovement: action.payload };
-        case 'SET_HEURISTIC_WEIGHT':
-            return { ...state, selectedHeuristicWeight: action.payload };
         case 'SET_CLEARED_GRID':
             return { ...state, clearedGrid: action.payload };
-        case 'SET_CLEARED_PATH':
-            return { ...state, clearedPath: action.payload };
         case 'SET_CLEARED_OBSTACLES':
             return { ...state, clearObstacles: action.payload };
-        case 'SET_START_CELL':
-            console.log(action.payload)
-            return { ...state, startCell: action.payload };
-        case 'SET_GOAL_CELL':
-            return { ...state, goalCell: action.payload };
+        case 'SET_ALGORITHM':
+            return { ...state, selectedAlgorithm: action.payload };
+        case 'SET_GRIDTYPE':
+            return { ...state, selectedGridType: action.payload };
+        case 'SET_CELLTYPE':
+            return { ...state, selectedCellType: action.payload };
+        case 'SET_HEURISTIC_WEIGHT':
+            return { ...state, selectedHeuristicWeight: action.payload };
+        case 'SET_HEURISTIC':
+            return { ...state, selectedHeuristic: action.payload };
+        case 'SET_ANIMATION_SPEED':
+            return { ...state, selectedSpeedType: action.payload };
+        case 'SET_DIAGONAL_MOVEMENT':
+            return { ...state, selectedSpeedType: action.payload };
         default:
             return state;
     }
