@@ -106,12 +106,11 @@ td {
 .animate-weight-cell {
     color: transparent;
     background-color: #343A40;
-    /* transform: scale(1.2);
+    transform: scale(1.2);
     animation-duration: 0.5s;
     animation-timing-function: ease-in-out;
-    animation-iteration-count: infinite; */
+    animation-iteration-count: infinite;
 }
-
 
 
 .animate-path-cell {
