@@ -33,5 +33,37 @@ const pathfindingSlice = createSlice({
     },
 });
 
+export const resetGridType = () => {
+    return (dispatch) => {
+        dispatch(setGridType(""))
+    }
+}
+
+
+export const resetSelectedAlgorithm = () => {
+    return (dispatch) => {
+        dispatch(setAlgorithm(""))
+    }
+}
+
+export const resetClearedGrid = () => {
+    return (dispatch) => {
+        dispatch(setClearedGrid(""))
+    }
+}
+
+
+export const resetClearedObstacles = () => {
+    return (dispatch) => {
+        dispatch(setClearedObstacles(""))
+    }
+}
+
+export const resetClearedPath = () => {
+    return (dispatch) => {
+        dispatch(setClearedPath(""))
+    }
+}
+
 export const {setAlgorithm, setGridType, setCellType, setClearedGrid, setClearedObstacles, setClearedPath} = pathfindingSlice.actions
 export default pathfindingSlice.reducer

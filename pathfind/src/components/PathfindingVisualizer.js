@@ -5,7 +5,7 @@ import WeightPickerHub from "./HeaderComponents/WeightPickerHub";
 import GridTypesHub from "./HeaderComponents/GridTypesHub";
 import { Button } from "@mantine/core";
 import { useDispatch } from 'react-redux';
-import { setAlgorithm, setClearedGrid, setClearedObstacles, setClearedPath, setGridType } from '../reducers/pathfindingReducer'
+import { setClearedGrid, setClearedObstacles, setClearedPath } from '../reducers/pathfindingReducer'
 const PathfindingVisualizer = () => {
     const dispatch = useDispatch()
     return (
@@ -20,15 +20,7 @@ const PathfindingVisualizer = () => {
                 <WeightPickerHub className="config-hub-elements">Weight Picker</WeightPickerHub>
                 <SettingsHub></SettingsHub>
             </div>
-
-            <Grid
-                resetGridType={() => dispatch(setGridType(""))}
-                resetSelectedAlgorithm={() => dispatch(setAlgorithm(""))}
-                resetClearedGrid={() => dispatch(setClearedGrid(false))}
-                resetClearedPath={() => dispatch(setClearedPath(false))}
-                resetClearedObstacles={() => dispatch(setClearedObstacles(false))}
-            ></Grid>
-
+            <Grid></Grid>
         </div >
 
 

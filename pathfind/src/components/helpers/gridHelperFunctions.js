@@ -132,7 +132,7 @@ export const serializeArray = (arr) => {
 
 export const setAnimationSpeed = (speedType) => {
     if (speedType === "Fast") {
-        return 20
+        return 10
     } else if (speedType === "Medium") {
         return 70
     } else {

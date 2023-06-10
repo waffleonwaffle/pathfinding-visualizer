@@ -15,11 +15,11 @@ import RecursiveDivisionAlgo from "../algorithms/MazeGeneration/RecursiveDivisio
 import RandomWeightMaze from "../algorithms/MazeGeneration/RandomWeightMaze";
 import IDAStarAlgo from "../algorithms/IDA*";
 import { reconstructPath, getRowColFromTable, initializeGrid, updateNeighbors, updateCellType, setAnimationSpeed } from "./helpers/gridHelperFunctions";
+import { resetGridType, resetClearedGrid, resetClearedObstacles, resetClearedPath, resetSelectedAlgorithm } from "../reducers/pathfindingReducer";
 import CopyPaste from "./CopyPaste";
 const START_CELL_COORDS = [1, 1];
 const GOAL_CELL_COORDS = [15, 35];
-const Grid = ({
-    resetSelectedAlgorithm, resetGridType, resetClearedGrid, resetClearedObstacles, resetClearedPath }) => {
+const Grid = () => {
     const [grid, setGrid] = useState([]);
     const startCell = useSelector((state) => state.grid.startCell);
     const goalCell = useSelector((state) => state.grid.goalCell);
@@ -29,7 +29,6 @@ const Grid = ({
     const clearedGrid = useSelector((state) => state.pathfind.clearedGrid);
     const clearObstacles = useSelector((state) => state.pathfind.clearObstacles);
     const clearPath = useSelector((state) => state.pathfind.clearPath);
-
     const selectedHeuristic = useSelector((state) => state.settings.selectedHeuristic)
     const selectedSpeedType = useSelector((state) => state.settings.selectedSpeedType)
     const selectedHeuristicWeight = useSelector((state) => state.settings.selectedHeuristicWeight)
@@ -73,14 +72,16 @@ const Grid = ({
 
     useEffect(() => {
         if (pathRunning) {
-            resetClearedGrid()
-            resetClearedObstacles()
+            dispatch(resetClearedGrid())
+            dispatch(resetClearedPath())
+            dispatch(resetClearedObstacles())
             return
         }
         if (clearedGrid) {
             setGrid(initializeGrid(START_CELL_COORDS, GOAL_CELL_COORDS))
-            resetSelectedAlgorithm()
-            resetClearedGrid();
+            dispatch(resetSelectedAlgorithm())
+            dispatch(resetClearedGrid())
+            resetAlgoStats()
             updateStartCell(START_CELL_COORDS)
             updateGoalCell(GOAL_CELL_COORDS)
         } else if (clearObstacles) {
@@ -88,18 +89,28 @@ const Grid = ({
                 const newGrid = prevGrid.map((row) => row.map((cell) => ({ ...cell, weightType: "Unweighted", weight: 1 })))
                 return newGrid;
             });
-            resetClearedObstacles()
+            dispatch(resetClearedObstacles())
 
-            
-        } else if (clearPath)  {
+
+        } else if (clearPath) {
             setGrid(prevGrid => {
                 const newGrid = prevGrid.map((row) => row.map((cell) => ({ ...cell, searched: false, partOfPath: false })))
-
                 return newGrid;
             });
-            resetClearedPath()
+            dispatch(resetClearedPath())
 
-        } else if (selectedGridType === "Random Grid") {
+        }
+        setGrid(prevGrid => {
+            updateNeighbors(prevGrid, diagonalMovement)
+            return prevGrid
+        });
+        
+    }, [clearedGrid, clearObstacles, clearPath, diagonalMovement])
+
+
+    useEffect(() => {
+        resetAlgoStats()
+        if (selectedGridType === "Random Grid") {
             setGrid(prevGrid => {
                 prevGrid = prevGrid.map((row, rowIndex) => row.map((cell, colIndex) => {
                     if (rowIndex === 0 || rowIndex === prevGrid.length - 1 || colIndex === 0 || colIndex === prevGrid[0].length - 1) {
@@ -110,7 +121,7 @@ const Grid = ({
                 const newGrid = RecursiveDivisionAlgo(prevGrid, 0, 0, prevGrid[0].length - 1, prevGrid.length - 1, "VERTICAL")
                 return newGrid
             })
-            resetGridType()
+            dispatch(resetGridType())
 
 
         } else if (selectedGridType === "Random Weighted Grid") {
@@ -119,15 +130,12 @@ const Grid = ({
                 RandomWeightMaze(prevGrid)
                 return prevGrid
             })
-            resetGridType()
+            dispatch(resetGridType())
 
         }
-        setGrid(prevGrid => {
-            updateNeighbors(prevGrid, diagonalMovement)
-            return prevGrid
-        });
+    }, [selectedGridType])
 
-    }, [clearedGrid, clearObstacles, clearPath, selectedGridType, diagonalMovement])
+
     const changeCellType = (row, col) => {
         setGrid(prevGrid => {
             const newGrid = [...prevGrid];
@@ -313,10 +321,14 @@ const Grid = ({
         handleClickCell(event)
     }
 
-    const handleStartVisualization = () => {
+    const resetAlgoStats = () => {
         totalVisitedCells.current = null
         totalExecutionTime.current = null
         totalPathCost.current = null
+    }
+
+    const handleStartVisualization = () => {
+        resetAlgoStats()
         if (pathRunning) {
             return
         }
@@ -338,6 +350,7 @@ const Grid = ({
 
     return (
         <div>
+            {/* {console.log('render')} */}
             <div className="visualizer-button-container">
                 <Button className="visualizer-button"
                     onClick={handleStartVisualization}>
