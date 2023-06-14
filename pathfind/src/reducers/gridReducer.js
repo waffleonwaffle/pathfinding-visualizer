@@ -16,6 +16,6 @@ const gridSlice = createSlice({
     },
   },
 });
-export const {setStartCell, setGoalCell } = gridSlice.actions;
+export const { setStartCell, setGoalCell } = gridSlice.actions;
 
 export default gridSlice.reducer;
