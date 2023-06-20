@@ -71,6 +71,7 @@ const Grid = () => {
     heuristicWeight: selectedHeuristicWeight,
   };
   const dispatch = useDispatch();
+
   let throttledMoveWaypoints = null;
   let totalVisitedCells = useRef(null);
   let totalExecutionTime = useRef(null);
