@@ -1,6 +1,6 @@
 import PathfindingVisualizer from "./components/PathfindingVisualizer";
-import "./styles/global.css";
-import { MantineProvider } from "@mantine/core";
+import './styles/global.css'
+import { MantineProvider } from '@mantine/core';
 import { Provider } from "react-redux";
 import store from "./store";
 function App() {
@@ -10,6 +10,7 @@ function App() {
         <PathfindingVisualizer></PathfindingVisualizer>
       </MantineProvider>
     </Provider>
+
   );
 }
 
