@@ -36,9 +36,4 @@
 //     return [cameFrom, searchedCells]
 // }
 
-
 // export default IDAStarAlgo
-
-
-
-

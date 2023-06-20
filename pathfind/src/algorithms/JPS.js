@@ -19,7 +19,6 @@
 //     return D * distance
 // }
 
-
 // const ManhattanDistanceHeuristic = (a, b) => {
 //     const [x1, y1] = a
 //     const [x2, y2] = b
@@ -51,7 +50,6 @@
 //         closed.a
 //     }
 // }
-
 
 // const AStarAlgo = (startNode, goalNode, grid, selectedHeuristic) => {
 //     let pQueue = new PriorityQueue()
