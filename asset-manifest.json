@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/pathfinding-visualizer/static/css/main.52651527.css",
+    "main.js": "/pathfinding-visualizer/static/js/main.5ace20bb.js",
+    "index.html": "/pathfinding-visualizer/index.html",
+    "main.52651527.css.map": "/pathfinding-visualizer/static/css/main.52651527.css.map",
+    "main.5ace20bb.js.map": "/pathfinding-visualizer/static/js/main.5ace20bb.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.52651527.css",
+    "static/js/main.5ace20bb.js"
+  ]
+}
