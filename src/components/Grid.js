@@ -60,6 +60,7 @@ const Grid = () => {
   const diagonalMovement = useSelector(
     (state) => state.settings.diagonalMovement
   );
+
   const [clickedWaypoint, setClickedWaypoint] = useState([false, false]);
   const [placingWalls, setPlacingWalls] = useState(false);
   const [previousCoordinates, setPreviousCoordinates] = useState([null, null]);
@@ -425,7 +426,9 @@ const Grid = () => {
           className="visualizer-button"
           onClick={handleStartVisualization}
         >
-          Run {selectedAlgorithm ? selectedAlgorithm : "Visualize Algorithm"}
+          {selectedAlgorithm
+            ? `Run ${selectedAlgorithm}`
+            : "Visualize Algorithm"}
         </Button>
       </div>
       <CopyPaste

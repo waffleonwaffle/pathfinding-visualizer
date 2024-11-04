@@ -2,7 +2,7 @@
   "name": "pathfind",
   "version": "0.1.0",
   "private": true,
-  "homepage":"https://waffleonwaffle.github.io/pathfinding-visualizer/",
+  "homepage": "https://waffleonwaffle.github.io/pathfinding-visualizer/",
   "dependencies": {
     "@emotion/react": "^11.11.0",
     "@mantine/core": "^6.0.11",
@@ -13,7 +13,6 @@
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "circular-json-es6": "^2.0.2",
-    "framer-motion": "^10.12.16",
     "gh-pages": "^5.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -23,7 +22,7 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "predeploy": "npm run build", 
+    "predeploy": "npm run build",
     "deploy": "gh-pages -d build",
     "start": "react-scripts start",
     "build": "react-scripts build",
